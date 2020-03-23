@@ -2,7 +2,7 @@
 
 _Version: 0.1
 Updated 3/22/2020_
-_Please check back here end of day 3/23/2020. Documentation will be updated and supporting files/scripts will be available at that time._
+_Please check back here end of day 3/23/2020. Documentation will be updated and supporting files/scripts for large sclae provisioning will be available at that time. In the meantime, manual provisioning is recommended._
 
 ## Overview
 
@@ -34,6 +34,7 @@ Doctors will not be directly invited to any meetings, but instead have access to
 ## Known Limitations &amp; Warnings
 
 - Patient Room accounts will be able to browse and join public Teams. Limit the presence of those in your directory or deploy Information Barriers to prevent this.
+- Patient Room accounts can technically create Teams if this is not already restricted. Consider implementing restrictions to Team creation to these accounts to limit this ability if that is a concern.
 - While Patients Room accounts are prevented from exposing PHI during meetings (no chat, whiteboard, or shared notes access), Doctors do not have those same limitations (unless you choose to apply custom meeting policies to Doctors as well). Ensure Doctors have proper training or documentation to _not_ use those features of put PHI in them. Any content posted in those features will be visible to the next patient in the room.
 
 ## Prerequisites
@@ -45,6 +46,8 @@ Doctors will not be directly invited to any meetings, but instead have access to
 - Optional: Intune licenses for management of Patient Room devices
 
 # Configuration
+
+All configuration steps below assume that you would like to set this up at scale with a large amount of accounts. If you would like to test out the solution or POC with a smaller amount of user accounts, no scripting or Power Automate is needed. Simply follow along but skip running scripts/flows and instead manually complete the same steps that are listed for each script/flow.
 
 ## Create Teams Policies
 
