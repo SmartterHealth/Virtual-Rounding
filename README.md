@@ -55,6 +55,18 @@ Create Policies in the Microsoft Teams Admin Center matching the below policies.
 
 ### Teams Policy
 ![Teams Policy](/Documentation/Images/TeamsPolicy.png)
+### Meeting Policy
+![Meeting Policy](/Documentation/Images/MeetingPolicy.png)
+### Live Events Policy
+![Live Events Policy](/Documentation/Images/LiveEventsPolicy.png)
+### Messaging Policy
+![Messaging Policy](/Documentation/Images/MessagingPolicy.png)
+### App Permission Policy
+![App Permission Policy](/Documentation/Images/AppPermissionPolicy.png)
+### App Setup Policy
+![App Setup Policy](/Documentation/Images/AppSetupPolicy.png)
+### Calling Policy
+![Calling Policy](/Documentation/Images/CallingPolicy.png)
 
 ## Patient Room Account Setup
 
