@@ -1,7 +1,7 @@
 # Virtual Rounding using Microsoft Teams
 
-_Version: 0.1
-Updated 3/22/2020_
+_Version: 0.2
+Updated 3/23/2020_
 _Please check back here end of day 3/23/2020. Documentation will be updated and supporting files/scripts for large sclae provisioning will be available at that time. In the meantime, manual provisioning is recommended._
 
 ## Overview
