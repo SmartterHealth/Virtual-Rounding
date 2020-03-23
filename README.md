@@ -5,7 +5,7 @@ Updated 3/22/2020_
 
 ## Overview
 
-This is the Virtual Rounding solution referenced in the Microsoft Health &amp; Life Sciences [blog post](https://aka.ms/teamsvirtualvisits). Please see that blog post for more details on the use case. This repository serves as the technical documentation.
+This is the Virtual Rounding solution referenced in the Microsoft Health &amp; Life Sciences [blog post](https://aka.ms/teamsvirtualrounding). Please see that blog post for more details on the use case. This repository serves as the technical documentation.
 
 ## Disclaimer
 
