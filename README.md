@@ -27,7 +27,7 @@ Each patient room will have an associated Office 365 account, with only Microsof
 - Hide all apps except Calendar
 - Disable Meeting Features: Meet Now, Cloud Recording, Transcription, Screen Sharing, PowerPoint Sharing, Whiteboard, Shared Notes, Anonymous user admission, Meeting Chat
 
-Each patient room will have an ongoing Teams meeting running for a specified amount of days (ideally months), and that meeting will be reused for that room as patients flow in and out of rooms.
+Each patient room will have an ongoing Teams meeting running all day, and that meeting will be reused for that room as patients flow in and out of rooms. Every 24 hours, the meeting link will be updated (using Power Automate).
 
 Doctors will not be directly invited to any meetings, but instead have access to a Team or Teams with a list of meetings pinned as a tab (from SharePoint). Doctors will be able to join a Patient Room meeting via the Join URL hyperlink in the list.
 
