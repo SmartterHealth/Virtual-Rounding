@@ -225,6 +225,11 @@ Instructions:
 4. Upload SetupMeetingsFlow.zip
 5. Update all variables (more details to be added here soon)
 
+## Meeting Updating
+
+Since meeting links can only last for 24 hours, we will use Power Automate to create new ones and update the SharePoint lists every 24 hours.
+Please check back here soon for the details of this flow.
+
 # Security Controls
 
 ## Mobile Device Management
