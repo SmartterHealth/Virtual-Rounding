@@ -1,0 +1,54 @@
+{
+    "schema": "https://developer.microsoft.com/json-schemas/sp/view-formatting.schema.json",
+    "hideSelection": true,
+    "hideColumnHeader": true,
+    "rowFormatter": {
+      "elmType": "div",
+      "attributes": {
+        "class": "sp-row-card"
+      },
+      "children": [
+        {
+          "elmType": "div",
+          "style": {
+            "text-align": "left"
+          },
+          "children": [
+            {
+              "elmType": "div",
+              "attributes": {
+                "class": "sp-row-title"
+              },
+              "txtContent": "[$Title]"
+            },
+            {
+              "elmType": "div",
+              "attributes": {
+                "class": "sp-row-listPadding"
+              },
+              "txtContent": "[$RoomLocation]"
+            },
+            {
+              "elmType": "a",
+              "txtContent": "Join Meeting",
+              "style": {
+                "border": "5px",
+                "padding-top": "3px",
+                "background-color": "silver",
+                "color": "black",
+                "padding-left": "3px",
+                "padding-right": "3px",
+                "padding-bottom": "3px",
+                "text-align": "left",
+                "cursor": "pointer"
+              },
+              "attributes": {
+                "target": "_blank",
+                "href": "[$MeetingLink]"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
