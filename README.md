@@ -56,7 +56,8 @@ Create Policies in the Microsoft Teams Admin Center matching the below policies.
 ### Teams Policy
 ![Teams Policy](/Documentation/Images/TeamsPolicy.png)
 ### Meeting Policy
-![Meeting Policy](/Documentation/Images/MeetingPolicy.png)
+![Meeting Policy1](/Documentation/Images/MeetingPolicy1.png)
+![Meeting Policy2](/Documentation/Images/MeetingPolicy2.png)
 ### Live Events Policy
 ![Live Events Policy](/Documentation/Images/LiveEventsPolicy.png)
 ### Messaging Policy
