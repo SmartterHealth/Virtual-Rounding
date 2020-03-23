@@ -54,7 +54,7 @@ All configuration steps below assume that you would like to set this up at scale
 Create Policies in the Microsoft Teams Admin Center matching the below policies. The screenshots below are recommended configuration, but you should configure to your organization's policy/needs.
 
 ### Teams Policy
-![Teams Policy](/documentation/images/TeamsPolicy.png)
+![Teams Policy](/Documentation/Images/TeamsPolicy.png)
 
 ## Patient Room Account Setup
 
