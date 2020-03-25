@@ -13,18 +13,9 @@ regarding the quality, safety, or suitability of any code or information found h
 #>
 
 <#
-PREREQUISITE POWERSHELL MODULES:
--Azure AD Powershell v2: https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0
--Skype for Business Online Powershell: https://docs.microsoft.com/en-us/office365/enterprise/powershell/manage-skype-for-business-online-with-office-365-powershell
-
 INSTRUCTIONS:
-Prepare a CSV file of desired accounts to be created for patient rooms/devices (Columns expected: AccountName, AccountUPN, AccountPassword, AccountLocation).
-Create an Azure AD Security Group and apply proper group based licensing.
-Create custom Policies in the Teams Admin Center.
-Define variables below, and run the script.
-When prompted, sign in with Administrator credentials (with the ability to create Azure AD accounts & assign Teams policies).
+Please see https://github.com/SmartterHealth/Virtual-Rounding/
 #>
-
 
 #--------------------------Variables---------------------------#
 #Path of the CSV file
