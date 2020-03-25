@@ -69,6 +69,28 @@ Create Policies in the Microsoft Teams Admin Center matching the below policies.
 ### Calling Policy
 ![Calling Policy](/Documentation/Images/CallingPolicy.png)
 
+## Application Registration {screenshots to be added}
+
+For various steps in this process we will need to call the Microsoft Graph. To do that, an app registration is required in Azure AD. This will require a Global Administrator account.
+
+1. Navigate to [https://aad.portal.azure.com/#blade/Microsoft\_AAD\_IAM/ActiveDirectoryMenuBlade/RegisteredApps](https://aad.portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps) and sign in as a Global Administrator.
+2. Click New Registration.
+3. Provide an application name, select &quot;Accounts in this organizational directory only&quot;, and leave Redirect URI blank. Click Register.
+4. Note down Application and Directory IDs to use later.
+5. From the left menu, click &quot;API permissions&quot; to grant some permissions to the application.
+6. Click &quot;+ Add a permission&quot;.
+7. Select &quot;Microsoft Graph&quot;.
+8. Select Application permissions.
+9. Add the following permissions:
+  1. Calendars.ReadWrite
+  2. OnlineMeetings.ReadWrite.All
+  3. Group.ReadWrite.All
+10. Click &quot;Grant admin consent for …&quot;
+11. From the left menu, click &quot;Certificates &amp; secrets&quot;.
+12. Under &quot;Client secrets&quot;, click &quot;+ New client secret&quot;.
+13. Provide a description and select an expiry time for the secret and click &quot;Add&quot;.
+14. Note down the secret Value.
+
 ## Patient Room Account Setup
 
 In this repository is a PowerShell script that:
@@ -102,17 +124,19 @@ You will also need to setup Group Based Licensing for the Azure AD Security Grou
 
 ### Script
 
-Once the above is ready, you can run CreateRooms.ps1. As with public script, please test and review before running in your production environment. Ensure you fill in the appropriate variables before running the script.
+Once the above is ready, you can run CreateRooms.ps1. As with all open source scripts, please test and review before running in your production environment. Ensure you fill in the appropriate variables before running the script.
 
 There will be two sign in prompts during the script. Sign in with administrator credentials that are able to create Azure AD accounts and assign Teams policies.
 
-## Team Creation
+## Team/List/Tab Creation
 
 Depending on your setup, you may want one Team or multiple Teams for Doctors to use to navigate and join the Patient Room meetings.
 
 We recommend a single Team with Channels for each location involved so that Doctors are able to join any room at any location during a Time of crisis. This is the method that will be covered and supported in this guide.
 
 If doctor&#39;s should only be able to join rooms at specific locations (hospitals/clinics), we recommend separate teams per location, or a single Team with _Private_ Channels for each location involved. This guide does not cover that method at this time however, and you will need to adapt to your needs. This will be added to the guide at a different time.
+
+In SharePoint, we will be leveraging SharePoint lists to store and surface the meeting join links. This guide will cover creating multiple SharePoint lists, one for each location, and having them added as Tabs to the associated channel. Each list will also get a custom view applied.
 
 ### Script
 
@@ -123,88 +147,38 @@ In this repository is a PowerShell Script (CreateTeams.ps1) that:
   1. Visibility: Private
   2. Disables member capabilities: Add/Remove Apps, Create/Update/Remove Channels, Create/Update/Remove Connectors, Create/Update/Remove Tabs
 3. Adds members to Team
-
-**As an alternative to running this script, the Team can absolutely be created manually!**
+4. Creates SharePoint Lists in the associated SharePoint site
+5. Adds columns and custom view to lists
+6. Creates Channels and pins the SharePoint list as a Tab
+7. Removes Wiki Tabs
 
 Before running this script, you will need the following:
 
 - An Azure AD Security Group
   - This group should be empty, and will only be used for the patient room accounts
-- A CSV file with the desired Team(s) information
-  - Columns:
-    - TeamName
-      - Desired Team Name. Ensure this is easily identifiable to your clinical staff.
-    - MembersGroupName
-      - Name of an Azure AD Group (or synced AD Group) containing the members to be added to the Team.
-  - Sample file located [here]
-- Azure AD PowerShell Module v2: [https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0](https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0)
-- Microsoft Teams PowerShell: [https://www.powershellgallery.com/packages/MicrosoftTeams/](https://www.powershellgallery.com/packages/MicrosoftTeams/)
-
-Once the above is ready, you can run CreateTeams.ps1. As with public script, please test and review before running in your production environment. Ensure you fill in the appropriate variables before running the script.
-
-There will be two sign in prompts during the script. Sign in with administrator credentials that are able to create Teams and add Members.
-
-## SharePoint Setup
-
-In SharePoint, we will be leveraging SharePoint lists to store and surface the meeting join links. This guide will cover creating multiple SharePoint lists, one for each location.
-
-Alternatively, you could consider using a single list and setup views/filters for your doctors to navigate by location. This guide does not cover that method at this time however, and you will need to adapt to your needs. This will be added to the guide at a different time.
-
-We will be leveraging the SharePoint site attached to the newly created Team.
-
-### Script
-
-In this repository is a PowerShell Script (SharePointSetup.ps1) that:
-
-1. Sets up Site Columns
-2. Creates Lists, Adds Columns, and Set custom view
-
-Before running this script, you will need the following:
-
-- SharePointViewFormatting.json
-  - Can be found in this repository
+- The App ID and Client Secret from the Azure AD App Registration (earlier step in this guide)
 - A CSV file with the desired Team(s) information
   - Columns:
     - LocationName
-      - Must contain all the location names used for &quot;AccountLocation&quot; during _Patient Room Account Setup_
+      - Location Name. This must match the location names used for AccountLocation in _Patient Room Account Setup_. Ensure all Location Names from that earlier script are represented.
+      - You will be able to add a suffix to this to make a more readable Team name by using a variable in the script
+    - MembersGroupName
+      - Name of an Azure AD Group (or synced AD Group) containing the members to be added to the Team.
   - Sample file located [here]
+- A second CSV file with the desired Channel(s)/List(s)
+  - Columns:
+    - SubLocationName
+      - Sub Location Name. This must match the location names used for AccountSubLocation in _Patient Room Account Setup_. Ensure all Sub Location Names from that earlier script are represented.
+    - LocationName
+      - Location Name. This must match the location names used for AccountLocation in _Patient Room Account Setup_. Ensure all Location Names from that earlier script are represented.
+  - Sample file located [here]
+- Azure AD PowerShell Module v2: [https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0](https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0)
+- Microsoft Teams PowerShell: [https://www.powershellgallery.com/packages/MicrosoftTeams/](https://www.powershellgallery.com/packages/MicrosoftTeams/)
 - SharePoint Online PnP PowerShell: [https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets?view=sharepoint-ps](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets?view=sharepoint-ps)
 
-## Channel Setup
-
-1. Login to Teams as one of the owners of the Team.
-2. Locate the newly created team and select it.
-3. Add a Channel for each &quot;AccountLocation&quot; you used during the _Patient Room Account Setup_ step. The names must be **identical** (you can rename them once **all** setup is complete).
-4. Add a SharePoint tab, and select the list with the same name as the channel.
-
-Suggestions:
-
-- Remove the &quot;Wiki&quot; tab if you do not need it.
-- &quot;Auto-pin&quot; channels so that doctors can find them easily.
-- Consider setting up Channel moderation if you need it.
+Once the above is ready, you can run CreateTeamsAndSPO.ps1. As with all open source scripts, please test and review before running in your production environment. Ensure you fill in the appropriate variables before running the script.
 
 ## Patient Room Meeting Setup
-
-### Application Registration {screenshots to be added}
-
-To setup the meetings, we will need to call the Microsoft Graph. To do that, an app registration is required in Azure AD. This will require a Global Administrator account.
-
-1. Navigate to [https://aad.portal.azure.com/#blade/Microsoft\_AAD\_IAM/ActiveDirectoryMenuBlade/RegisteredApps](https://aad.portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps) and sign in as a Global Administrator.
-2. Click New Registration.
-3. Provide an application name, select &quot;Accounts in this organizational directory only&quot;, and leave Redirect URI blank. Click Register.
-4. Note down Application and Directory IDs to use later.
-5. From the left menu, click &quot;API permissions&quot; to grant some permissions to the application.
-6. Click &quot;+ Add a permission&quot;.
-7. Select &quot;Microsoft Graph&quot;.
-8. Select Application permissions.
-9. Add the following permissions:
-  1. Calendars.ReadWrite
-  2. OnlineMeetings.ReadWrite.All
-10. Click &quot;Grant admin consent for …&quot;
-11. From the left menu, click &quot;Certificates &amp; secrets&quot;.
-12. Under &quot;Client secrets&quot;, click &quot;+ New client secret&quot;.
-13. Provide a description and select an expiry time for the secret and click &quot;Add&quot;.
-14. Note down the secret Value.
 
 ## Meeting Creation
 
