@@ -154,9 +154,9 @@ In this repository is a PowerShell Script (CreateTeamsAndSPO.ps1) that:
 
 Before running this script, you will need the following:
 
-- An Azure AD Security Group
-  - This group should be empty, and will only be used for the patient room accounts
-- The App ID and Client Secret from the Azure AD App Registration (earlier step in this guide)
+- Azure AD Security Groups
+  - You will specify security groups to copy membership from to the individual Teams in the below CSV (_MembersGroupName_).
+- The App ID and Client Secret from the Azure AD App Registration (earlier step in this guide).
 - A CSV file with the desired Team(s) information
   - Columns:
     - LocationName
