@@ -19,21 +19,23 @@ Please see https://github.com/SmartterHealth/Virtual-Rounding/
 #--------------------------Variables---------------------------#
 #Path of the first CSV file. (Columns expected: LocationName, MembersGroupName)
 #LOCATION NAMES SHOULD MATCH AccountLocations FROM CreateRooms SCRIPT
-$locationsCsvFile = "FILL THIS IN"
+$locationsCsvFile = ""
 #Path of the first CSV file. (Columns expected: SubLocationName, LocationName)
 #SUBLOCATION NAMES SHOULD MATCH AccountSubLocations FROM CreateRooms SCRIPT
-$subLocationsCsvFile = "FILL THIS IN"
+$subLocationsCsvFile = ""
 #UPNs of A desired Team owner (will apply to all Teams)
-$groupOwner = "upn1@contoso.com"
+$groupOwner = "Kelly@contosohealthsystem.onmicrosoft.com"
 #Path of the JSON file (download from same repository as this script)
-$jsonFile = "FILL THIS IN"
+$jsonFile = ""
 #Team Name Suffix - Text to be added after LocationName to form the team name (use this in the Flow later in the setup process too)
 #Example: LocationName:"Building 2" + Suffix:"Patient Rooms" = Team Name: "Building 2 Patient Rooms"
-$teamNameSuffix = "Patient Rooms" #*required*
+$teamNameSuffix = "Virtual Rounding" #*required*
 #Azure AD App Registration Info:
-$clientId = "FILL THIS IN" #from Azure AD App Registration
-$tenantName = "smartterhealth.onmicrosoft.com" # your onmicrosoft domain
-$clientSecret = "FILL THIS IN" #from Azure AD App Registration
+$clientId = "" #from Azure AD App Registration
+$tenantName = "contosohealthsystem.onmicrosoft.com" # your onmicrosoft domain
+$clientSecret = "" #from Azure AD App Registration
+#Define your Tenant SPO Url
+$sharepointBaseUrl = "https://contosohealthsystem.sharepoint.com/" #ensure this ends with a /
 #-------------------------Script Setup-------------------------#
 $credentials = Get-Credential
 
@@ -71,7 +73,8 @@ $TokenResponse = Invoke-RestMethod -Uri "https://login.microsoftonline.com/$Tena
 foreach ($location in $locationsList) {
     #Create Team with policies
     $teamName = $location.LocationName + " " + $teamNameSuffix 
-    New-Team -DisplayName $teamName -Visibility Private -Owner $groupOwner -AllowAddRemoveApps $false -AllowCreateUpdateChannels $false -AllowCreateUpdateRemoveConnectors $false AllowCreateUpdateRemoveTabs $false -AllowDeleteChannels $false -MailNickName $location.LocationName
+    $teamShortName = $location.LocationName.replace(' ','')
+    New-Team -DisplayName $teamName -Visibility Private -Owner $groupOwner -AllowAddRemoveApps $false -AllowCreateUpdateChannels $false -AllowCreateUpdateRemoveConnectors $false -AllowCreateUpdateRemoveTabs $false -AllowDeleteChannels $false -MailNickName $teamShortName
     $teamID = (Get-AzureADGroup -SearchString $teamName).ObjectID
     #Add members to team
     $groupID = (Get-AzureADGroup -SearchString $location.MembersGroupName).ObjectID
@@ -79,10 +82,10 @@ foreach ($location in $locationsList) {
     foreach ($member in $groupMembers) {
         Add-AzureADGroupMember -ObjectId $teamID -RefObjectId $member.ObjectID
     }
-    $teamSpoUrl = (Get-UnifiedGroup $teamName).sharepointsiteurl
+    $teamSpoUrl = $sharepointBaseUrl + "sites/" + $teamShortName
     Connect-PnPOnline -Url $teamSpoUrl -Credentials $credentials
     #--------------------Setup Site Colums---------------------#
-    Add-PnPField -Type Text -InternalName "RoomLocation" -DisplayName "Room Location" -Group "VirtualRounding" -Web $web
+    Add-PnPField -Type Text -InternalName "RoomLocation" -DisplayName "Room Location" -Group "VirtualRounding"
     Add-PnPField -Type Text -InternalName "RoomSubLocation" -DisplayName "Room SubLocation" -Group "VirtualRounding"
     Add-PnPField -Type URL -InternalName "MeetingLink" -DisplayName "Meeting Link" -Group "VirtualRounding"
     Add-PnPField -Type Text -InternalName "EventID" -DisplayName "EventID" -Group "VirtualRounding"
@@ -98,28 +101,32 @@ foreach ($location in $locationsList) {
 
 foreach ($sublocation in $sublocationsList) {
     #--------------Create Lists and Add Columns----------------#
-    $teamName = $sublocation.LocationName + " " + $teamNameSuffix 
-    $teamSpoUrl = (Get-UnifiedGroup $teamName).sharepointsiteurl
+    $sublocationName = $sublocation.LocationSubName
+    $teamName = $sublocation.LocationName + " " + $teamNameSuffix
+    $teamShortName = $location.LocationName.replace(' ','')
+    $teamSpoUrl = $sharepointBaseUrl + "sites/" + $teamShortName
     Connect-PnPOnline -Url $teamSpoUrl -Credentials $credentials
+    $contentType = Get-PnPContentType -Identity "VirtualRoundingRoom"
 
-    New-PnPList -Title $sublocation.LocationSubName -Template GenericList
+    New-PnPList -Title $sublocationName -Template GenericList
     Start-Sleep -Seconds 5
     $list = Get-PnPList -Identity ("Lists/" + $subLocation.LocationSubName)
-    Set-PnPList -Identity $sublocation.LocationSubName -EnableContentTypes $true
+    Set-PnPList -Identity $sublocationName -EnableContentTypes $true
     Add-PnPContentTypeToList -List $list -ContentType $contentType -DefaultContentType
     Add-PnPView -List $list -Title Meetings -SetAsDefault -Fields Title, RoomLocation, MeetingLink
-    Start-Sleep -Seconds 5 #toolong?
+    Start-Sleep -Seconds 10 #toolong?
     $view = Get-PnPView -List $list -Identity Meetings
     $view.CustomFormatter = $jsonContent
     $view.Update()
     $view.Context.ExecuteQuery()
-    $viewUrl = $teamSpoUrl + "/Lists/" + $sublocation.SubLocationName + "/Meetings.aspx"
+    $viewUrl = ($teamSpoUrl + "/Lists/" + $sublocationName + "/Meetings.aspx")
     $viewUrlEncoded = [System.Web.HTTPUtility]::UrlEncode($viewUrl)
+    $viewUrl = $viewUrl.replace(" ","%20")
     #-------------------Create Channels------------------------#
     #Create Channel
     $channelApiUrl = ("https://graph.microsoft.com/beta/teams/" + $teamID + "/channels")
     $channelBody = @"
-            {"displayName": "Floor 7"}
+            {"displayName": "$sublocationName"}
 "@
     $newChannel = Invoke-RestMethod -Headers @{Authorization = "Bearer $($Tokenresponse.access_token)" } -Uri $channelApiUrl -Body $channelBody -Method Post -ContentType 'application/json'
     #Add SPO List as Tab

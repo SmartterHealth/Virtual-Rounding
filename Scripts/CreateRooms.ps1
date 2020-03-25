@@ -20,7 +20,7 @@ Please see https://github.com/SmartterHealth/Virtual-Rounding/
 #--------------------------Variables---------------------------#
 #Path of the CSV file
 #Columns expected: AccountName, AccountUPN, AccountPassword, AccountLocation, AccountSubLocation
-$csvFile = "C:\Users\mafritz\OneDrive - Microsoft\Scripts\Allina Rooms\RoomAccounts.csv"
+$csvFile = ""
 #Name of Security Group for Group Based Licensing
 $groupName = "Patient Rooms"
 #Name of Teams Policies configured to be applied to accounts
