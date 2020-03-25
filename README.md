@@ -115,8 +115,10 @@ Before running this script, you will need the following:
     - AccountPassword
       - Must comply with your Azure AD Password Policies
     - AccountLocation
-      - Building or Location of the room. This will be used to categorize the rooms later on and must be tied to either a Team name or Channel name (see _Team Creation_ and _Channel Setup_ sections below).
-  - Sample file located [here]
+      - Building or Location of the room. This will be used to categorize the rooms later on and will be tied to a Team name (a suffix can be added) (see _Team/List/Tab_ sections below).
+    - AccountSubLocation
+      - Sub Location of the room (example: Floor 1). This will be used to categorize the rooms later on and must be tied to either a Channel name (see _Team/List/Tab_ sections below).
+  - Sample file available (RoomAccounts.csv)
 - Azure AD PowerShell Module v2: [https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0](https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0)
 - Skype for Business Online PowerShell: [https://docs.microsoft.com/en-us/office365/enterprise/powershell/manage-skype-for-business-online-with-office-365-powershell](https://docs.microsoft.com/en-us/office365/enterprise/powershell/manage-skype-for-business-online-with-office-365-powershell)
 
@@ -164,14 +166,14 @@ Before running this script, you will need the following:
       - You will be able to add a suffix to this to make a more readable Team name by using a variable in the script
     - MembersGroupName
       - Name of an Azure AD Group (or synced AD Group) containing the members to be added to the Team.
-  - Sample file located [here]
+  - Sample file available (LocationList.csv)
 - A second CSV file with the desired Channel(s)/List(s)
   - Columns:
     - SubLocationName
       - Sub Location Name. This must match the location names used for AccountSubLocation in _Patient Room Account Setup_. Ensure all Sub Location Names from that earlier script are represented.
     - LocationName
       - Location Name. This must match the location names used for AccountLocation in _Patient Room Account Setup_. Ensure all Location Names from that earlier script are represented.
-  - Sample file located [here]
+  - Sample file available (SubLocationList.csv)
 - Azure AD PowerShell Module v2: [https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0](https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0)
 - Microsoft Teams PowerShell: [https://www.powershellgallery.com/packages/MicrosoftTeams/](https://www.powershellgallery.com/packages/MicrosoftTeams/)
 - SharePoint Online PnP PowerShell: [https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets?view=sharepoint-ps](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets?view=sharepoint-ps)
