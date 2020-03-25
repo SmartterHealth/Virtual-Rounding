@@ -140,7 +140,7 @@ In SharePoint, we will be leveraging SharePoint lists to store and surface the m
 
 ### Script
 
-In this repository is a PowerShell Script (CreateTeams.ps1) that:
+In this repository is a PowerShell Script (CreateTeamsAndSPO.ps1) that:
 
 1. Creates the Team
 2. Sets Team Settings:
