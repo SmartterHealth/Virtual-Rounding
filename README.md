@@ -2,7 +2,7 @@
 
 _Version: 0.3
 Updated 3/25/2020_
-_This solution is a work in progress. Please reach out to max.fritz@microsoft.com for assistince if needed._
+_This solution is a work in progress. Please reach out to max.fritz@microsoft.com for assistance if needed._
 
 ## Overview
 
