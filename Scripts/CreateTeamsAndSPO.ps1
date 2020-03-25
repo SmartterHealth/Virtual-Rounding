@@ -71,7 +71,7 @@ $TokenResponse = Invoke-RestMethod -Uri "https://login.microsoftonline.com/$Tena
 foreach ($location in $locationsList) {
     #Create Team with policies
     $teamName = $location.LocationName + " " + $teamNameSuffix 
-    New-Team -DisplayName $teamName -Visibility Private -Owner $groupOwner -AllowAddRemoveApps $false -AllowCreateUpdateChannels $false -AllowCreateUpdateRemoveConnectors $false AllowCreateUpdateRemoveTabs $false -AllowDeleteChannels $false
+    New-Team -DisplayName $teamName -Visibility Private -Owner $groupOwner -AllowAddRemoveApps $false -AllowCreateUpdateChannels $false -AllowCreateUpdateRemoveConnectors $false AllowCreateUpdateRemoveTabs $false -AllowDeleteChannels $false -MailNickName $location.LocationName
     $teamID = (Get-AzureADGroup -SearchString $teamName).ObjectID
     #Add members to team
     $groupID = (Get-AzureADGroup -SearchString $location.MembersGroupName).ObjectID
