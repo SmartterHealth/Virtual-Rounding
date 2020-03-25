@@ -130,7 +130,7 @@ foreach ($sublocation in $sublocationsList) {
             "teamsApp@odata.bind" : "https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/2a527703-1f6f-4559-a332-d8a7d288cd88",
             "configuration": {
               "entityId": "sharepointtab_0.8309667588452743",
-              "contentUrl": "https://smartterhealth.sharepoint.com/sites/building1examrooms/_layouts/15/teamslogon.aspx?spfx=true&dest=$viewUrlEncoded",
+              "contentUrl": "$teamSpoUrl/_layouts/15/teamslogon.aspx?spfx=true&dest=$viewUrlEncoded",
               "websiteUrl": "$viewUrl",
               "removeUrl": null
             }
