@@ -2,11 +2,12 @@
 
 _Version: 0.3
 Updated 3/25/2020_
-_This solution is a work in progress. Please reach out to max.fritz@microsoft.com for assistance if needed._
+
+For deployment assistance, questions or comments, plesae fill out [this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR6mlTNdIzWRKq7zcu5h9FqNUMVoxSU0yS0hCSVhKMkxRREZaVE1IRU8wVy4u). Someone from Microsoft will reach out right away!
 
 ## Overview
 
-This is the Virtual Rounding solution referenced in the Microsoft Health &amp; Life Sciences [blog post](https://aka.ms/teamsvirtualrounding). Please see that blog post for more details on the use case. This repository serves as the technical documentation.
+This is the Virtual Rounding solution referenced in the Microsoft Health &amp; Life Sciences [blog post](https://aka.ms/teamsvirtualrounding). Please see that blog post for more an overview of the use case. This repository serves as the technical documentation.
 
 ## Disclaimer
 
