@@ -27,7 +27,7 @@ Each patient room will have an associated Office 365 account, with only Microsof
 - Hide all apps except Calendar
 - Disable Meeting Features: Meet Now, Cloud Recording, Transcription, Screen Sharing, PowerPoint Sharing, Whiteboard, Shared Notes, Anonymous user admission, Meeting Chat
 
-Each patient room will have an ongoing Teams meeting running all day, and that meeting will be reused for that room as patients flow in and out of rooms. Every 24 hours, the meeting link will be updated (using Power Automate).
+Each patient room will have an ongoing Teams meeting running for a long period of time (months or longer), and that meeting will be reused for that room as patients flow in and out of rooms. A previous version of this guide said to create new meetings every 24 hours, but that has been found to not be necessary.
 
 Doctors will not be directly invited to any meetings, but instead have access to a Team or Teams with a list of meetings pinned as a tab (from SharePoint). Doctors will be able to join a Patient Room meeting via the Join URL hyperlink in the list.
 
@@ -120,7 +120,7 @@ Before running this script, you will need the following:
 - Azure AD PowerShell Module v2: [https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0](https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0)
 - Skype for Business Online PowerShell: [https://docs.microsoft.com/en-us/office365/enterprise/powershell/manage-skype-for-business-online-with-office-365-powershell](https://docs.microsoft.com/en-us/office365/enterprise/powershell/manage-skype-for-business-online-with-office-365-powershell)
 
-You will also need to setup Group Based Licensing for the Azure AD Security Group. Please assign an Office 365 license to the group and disable all assignment options except for Microsoft Teams and Exchange Online. Detailed instructions for Group Based Licensing can be found here: [https://docs.microsoft.com/en-us/azure/active-directory/users-groups-roles/licensing-groups-assign](https://docs.microsoft.com/en-us/azure/active-directory/users-groups-roles/licensing-groups-assign).
+You will also need to setup Group Based Licensing for the Azure AD Security Group. Please assign an Office 365 license to the group and disable all assignment options except for Microsoft Teams, Skype for Business and Exchange Online. Detailed instructions for Group Based Licensing can be found here: [https://docs.microsoft.com/en-us/azure/active-directory/users-groups-roles/licensing-groups-assign](https://docs.microsoft.com/en-us/azure/active-directory/users-groups-roles/licensing-groups-assign).
 
 ### Script
 
@@ -197,12 +197,14 @@ Instructions:
 2. Click on &quot;My flows&quot;.
 3. Click &quot;Import&quot;.
 4. Upload SetupMeetingsFlow.zip
-5. Update all variables (more details to be added here soon)
+5. Update all variables
+
+Once it's been at least 3 hours since you've created the room accounts, you can run the Flow to create all the meeting links. Ideally, wait 24 hours. This is to ensure the Teams Policies properly apply to the room accounts before a meeting is created.
 
 ## Meeting Updating
 
-Since meeting links can only last for 24 hours, we will use Power Automate to create new ones and update the SharePoint lists every 24 hours.
-Please check back here soon for the details of this flow.
+If there is an error with a meeting link, there is a flow that can be manually run to update the link. Please note when this happens, someone will need to end the meeting on the patient room device and join the new meeting.
+Please check back here soon for the details of the flow for this purpose.
 
 # Security Controls
 
