@@ -83,9 +83,9 @@ For various steps in this process we will need to call the Microsoft Graph. To d
 7. Select &quot;Microsoft Graph&quot;.
 8. Select Application permissions.
 9. Add the following permissions:
-  1. Calendars.ReadWrite
-  2. OnlineMeetings.ReadWrite.All
-  3. Group.ReadWrite.All
+  a. Calendars.ReadWrite
+  b. OnlineMeetings.ReadWrite.All
+  c. Group.ReadWrite.All
 10. Click &quot;Grant admin consent for …&quot;
 11. From the left menu, click &quot;Certificates &amp; secrets&quot;.
 12. Under &quot;Client secrets&quot;, click &quot;+ New client secret&quot;.
