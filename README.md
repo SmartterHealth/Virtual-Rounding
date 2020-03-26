@@ -155,6 +155,8 @@ In this repository is a PowerShell Script (CreateTeamsAndSPO.ps1) that:
 3. Adds members to Team
 4. Creates SharePoint Lists in the associated SharePoint site
 5. Adds columns and custom view to lists
+  a. Columns: Title (exisitng by default), RoomLocation, RoomSubLocation, MeetingLink, EventID(skip if provisioning manually).
+  b. View: (Create a new view)[https://support.office.com/en-us/article/Create-change-or-delete-a-view-of-a-list-or-library-27AE65B8-BC5B-4949-B29B-4EE87144A9C9] and then (add in the JSON)[https://support.microsoft.com/en-us/office/formatting-list-views-f737fb8b-afb7-45b9-b9b5-4505d4427dd1?ui=en-us&rs=en-us&ad=us] from SharePointViewFormatting.json
 6. Creates Channels and pins the SharePoint list as a Tab
 7. Removes Wiki Tabs
 
