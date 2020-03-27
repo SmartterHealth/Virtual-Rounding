@@ -24,6 +24,7 @@ $locationsCsvFile = ""
 #SUBLOCATION NAMES SHOULD MATCH AccountSubLocations FROM CreateRooms SCRIPT
 $subLocationsCsvFile = ""
 #UPNs of A desired Team owner (will apply to all Teams)
+#NEEDS TO BE THE SAME ACCOUNT YOU LOG IN WITH DURING THIS SCRIPT
 $groupOwner = "Kelly@contosohealthsystem.onmicrosoft.com"
 #Path of the JSON file (download from same repository as this script)
 $jsonFile = ""
@@ -47,8 +48,8 @@ Connect-MicrosoftTeams -Credential $credentials
 
 Import-Module SharePointPnPPowerShellOnline
 
-$Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $credentials -Authentication Basic -AllowRedirection
-Import-PSSession $Session -DisableNameChecking
+#$Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $credentials -Authentication Basic -AllowRedirection
+#Import-PSSession $Session -DisableNameChecking
 
 #Import CSV of Teams
 $locationsList = Import-Csv -Path $locationsCsvFile
@@ -75,7 +76,6 @@ foreach ($location in $locationsList) {
     $teamName = $location.LocationName + " " + $teamNameSuffix 
     $teamShortName = $location.LocationName.replace(' ','')
     New-Team -DisplayName $teamName -Visibility Private -Owner $groupOwner -AllowAddRemoveApps $false -AllowCreateUpdateChannels $false -AllowCreateUpdateRemoveConnectors $false -AllowCreateUpdateRemoveTabs $false -AllowDeleteChannels $false -MailNickName $teamShortName
-    $teamID = (Get-AzureADGroup -SearchString $teamName).ObjectID
     #Add members to team
     $groupID = (Get-AzureADGroup -SearchString $location.MembersGroupName).ObjectID
     $groupMembers = Get-AzureADGroupMember -ObjectId $groupID
@@ -103,6 +103,7 @@ foreach ($sublocation in $sublocationsList) {
     #--------------Create Lists and Add Columns----------------#
     $sublocationName = $sublocation.LocationSubName
     $teamName = $sublocation.LocationName + " " + $teamNameSuffix
+    $teamID = (Get-AzureADGroup -SearchString $teamName).ObjectID
     $teamShortName = $location.LocationName.replace(' ','')
     $teamSpoUrl = $sharepointBaseUrl + "sites/" + $teamShortName
     Connect-PnPOnline -Url $teamSpoUrl -Credentials $credentials
@@ -112,9 +113,10 @@ foreach ($sublocation in $sublocationsList) {
     Start-Sleep -Seconds 5
     $list = Get-PnPList -Identity ("Lists/" + $subLocation.LocationSubName)
     Set-PnPList -Identity $sublocationName -EnableContentTypes $true
+    #set Permissions?
     Add-PnPContentTypeToList -List $list -ContentType $contentType -DefaultContentType
-    Add-PnPView -List $list -Title Meetings -SetAsDefault -Fields Title, RoomLocation, MeetingLink
-    Start-Sleep -Seconds 10 #toolong?
+    $newView = Add-PnPView -List $list -Title Meetings -SetAsDefault -Fields Title, RoomLocation, MeetingLink
+    Start-Sleep -Seconds 20 #toolong?
     $view = Get-PnPView -List $list -Identity Meetings
     $view.CustomFormatter = $jsonContent
     $view.Update()
@@ -153,4 +155,3 @@ foreach ($sublocation in $sublocationsList) {
     
     Disconnect-PnPOnline
 }
-    
