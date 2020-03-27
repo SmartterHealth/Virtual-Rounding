@@ -35,7 +35,8 @@
                       },
                       "attributes": {
                           "iconName": "Medical",
-                          "href": "=[$MeetingLink]"
+                          "href": "=[$MeetingLink]",
+                          "target": "_blank"
                       }
                   }
               ]
@@ -57,7 +58,8 @@
                       },
                       "txtContent": "[$Title]",
                       "attributes": {
-                          "href": "=[$MeetingLink]"
+                          "href": "=[$MeetingLink]",
+                          "target": "_blank"
                       }
                   }
               ]
@@ -80,7 +82,8 @@
                       },
                       "txtContent": "[$RoomLocation]",
                       "attributes": {
-                          "href": "=[$MeetingLink]"
+                          "href": "=[$MeetingLink]",
+                          "target": "_blank"
                       }
                   }
               ]
