@@ -113,7 +113,7 @@ foreach ($sublocation in $sublocationsList) {
     Start-Sleep -Seconds 5
     $sublocationShortName = $sublocationName.replace('-','')
     $list = Get-PnPList -Identity ("Lists/" + $sublocationShortName)
-    Set-PnPList -Identity $sublocationName -EnableContentTypes $true
+    Set-PnPList -Identity $sublocationShortName -EnableContentTypes $true
     #set Permissions?
     Add-PnPContentTypeToList -List $list -ContentType $contentType -DefaultContentType
     $newView = Add-PnPView -List $list -Title Meetings -SetAsDefault -Fields Title, RoomLocation, MeetingLink
@@ -122,7 +122,7 @@ foreach ($sublocation in $sublocationsList) {
     $view.CustomFormatter = $jsonContent
     $view.Update()
     $view.Context.ExecuteQuery()
-    $viewUrl = ($teamSpoUrl + "/Lists/" + $sublocationName + "/Meetings.aspx")
+    $viewUrl = ($teamSpoUrl + "/Lists/" + $sublocationShortName + "/Meetings.aspx")
     $viewUrlEncoded = [System.Web.HTTPUtility]::UrlEncode($viewUrl)
     $viewUrl = $viewUrl.replace(" ","%20")
     #-------------------Create Channels------------------------#
