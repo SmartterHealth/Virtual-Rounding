@@ -104,14 +104,15 @@ foreach ($sublocation in $sublocationsList) {
     $sublocationName = $sublocation.LocationSubName
     $teamName = $sublocation.LocationName + " " + $teamNameSuffix
     $teamID = (Get-AzureADGroup -SearchString $teamName).ObjectID
-    $teamShortName = $location.LocationName.replace(' ','')
+    $teamShortName = $sublocation.LocationName.replace(' ','')
     $teamSpoUrl = $sharepointBaseUrl + "sites/" + $teamShortName
     Connect-PnPOnline -Url $teamSpoUrl -Credentials $credentials
     $contentType = Get-PnPContentType -Identity "VirtualRoundingRoom"
 
     New-PnPList -Title $sublocationName -Template GenericList
     Start-Sleep -Seconds 5
-    $list = Get-PnPList -Identity ("Lists/" + $subLocation.LocationSubName)
+    $sublocationShortName = $sublocationName.replace('-','')
+    $list = Get-PnPList -Identity ("Lists/" + $sublocationShortName)
     Set-PnPList -Identity $sublocationName -EnableContentTypes $true
     #set Permissions?
     Add-PnPContentTypeToList -List $list -ContentType $contentType -DefaultContentType
