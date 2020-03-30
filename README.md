@@ -163,6 +163,7 @@ Before running this script, you will need the following:
 
 - Azure AD Security Groups
   - You will specify security groups to copy membership from to the individual Teams in the below CSV (_MembersGroupName_).
+  - These groups should contain the provider's accounts that you want to be added to the Teams as members. Do not include any of the room accounts you created earlier. They should _not_ be members of the Team. 
 - The App ID and Client Secret from the Azure AD App Registration (earlier step in this guide).
 - A CSV file with the desired Team(s) information
   - Columns:
