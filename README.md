@@ -172,6 +172,7 @@ Before running this script, you will need the following:
       - You will be able to add a suffix to this to make a more readable Team name by using a variable in the script
     - MembersGroupName
       - Name of an Azure AD Group (or synced AD Group) containing the members to be added to the Team.
+      - These groups should contain the provider's accounts that you want to be added to the Teams as members. Do not include any of the room accounts you created earlier. They should _not_ be members of the Team. 
   - Sample file available (LocationList.csv)
 - A second CSV file with the desired Channel(s)/List(s)
   - Columns:
