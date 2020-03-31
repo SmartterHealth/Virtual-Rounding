@@ -89,6 +89,7 @@ foreach ($location in $locationsList) {
     Add-PnPField -Type Text -InternalName "RoomSubLocation" -DisplayName "Room SubLocation" -Group "VirtualRounding"
     Add-PnPField -Type URL -InternalName "MeetingLink" -DisplayName "Meeting Link" -Group "VirtualRounding"
     Add-PnPField -Type Text -InternalName "EventID" -DisplayName "EventID" -Group "VirtualRounding"
+    Add-PnPField -Type User -InternalName "RoomAccount" -DisplayName "RoomAccount" -Group "VirtualRounding"
     Add-PnPContentType -Name "VirtualRoundingRoom" -Group "VirtualRounding"
     Start-Sleep -Seconds 5
     $contentType = Get-PnPContentType -Identity "VirtualRoundingRoom"
@@ -96,6 +97,7 @@ foreach ($location in $locationsList) {
     Add-PnPFieldToContentType -Field "RoomSubLocation" -ContentType $contentType
     Add-PnPFieldToContentType -Field "MeetingLink" -ContentType $contentType
     Add-PnPFieldToContentType -Field "EventID" -ContentType $contentType
+    Add-PnPFieldToContentType -Field "RoomAccount" -ContentType $contentType
     Disconnect-PnPOnline
 }
 
