@@ -1,0 +1,22 @@
+{
+    "ClientCredential":
+    {
+        "Id": "",
+        "Secret": ""
+    },
+    "TenantInfo":
+    {
+        "TenantName": "something.onmicrosoft.com",
+        "SPOUrl": "https://someth9ing.sharepoint.com/sites/NorthTower",
+        "MeetingSchedulingUser": "admin@something.onmicrosoft.com"
+    },
+    "TimeZoneInfo":
+    {
+        "UTCOffset": "-4",
+        "TimeZoneName": "Eastern Standard Time"
+    },
+    "MeetingInfo":
+    {
+        "DaysOutToSchedule": "30"
+    }
+}

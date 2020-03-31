@@ -20,21 +20,26 @@ Import-Module AzureAD
 Import-Module SharePointPnPPowerShellOnline
 #--------------------------Variables---------------------------#
 
+$configFilePath = ".\Scripts\RunningConfig.json"
+
+$configFile = Get-Content -Path $configFilePath | ConvertFrom-Json
+
 #sharePoint site your team has been provisioned for you. 
-$sharepointSiteUrl = "https://m365x107527.sharepoint.com/sites/NorthTower"
-$tenantName = "M365x107527.onmicrosoft.com"
+$sharepointSiteUrl = $configFile.TenantInfo.SPOUrl
+$tenantName = $configFile.TenantInfo.TenantName
 
 #azure App ID client ids and secrets
+$clientID = $configFile.ClientCredential.Id
+$clientSecret = $configFile.ClientCredential.Secret
 
 #must be a user allowed to create Teams meetigns and create calendar events.  Recommend a "room provisioner' account to avoid 
 #cluttering your own calendar"
-$meetingSchedulerUserName = "admin@m365x107527.onmicrosoft.com"
-
+$meetingSchedulerUserName = $configFIle.TenantInfo.MeetingSchedulingUser
 
 #date/time values below
-$utcOffset = "-4"
-$timezoneName = "Eastern Daylight Time"
-$daysOutForMeetings = 30
+$utcOffset = $configFile.TimeZoneInfo.UTCOffset
+$timezoneName = $configFile.TimeZoneInfo.TimeZoneName
+$daysOutForMeetings = $configFile.MeetingInfo.DaysOutToSchedule
 
 #links to the json templates
 $teamsMeetingRequestBodyFile = "Scripts\NewMeetingRequest.json"
@@ -46,7 +51,8 @@ $today = Get-Date -Format o
 $meetingExpirationDate = (Get-Date).AddDays($daysOutForMeetings)
 $meetingExpirationDate = Get-Date $meetingExpirationDate -Format o
 
-if($credentials -eq $null)
+
+if($null -eq $credentials)
 {
     $Credentials = Get-Credential
 }
@@ -103,6 +109,8 @@ Connect-PnPOnline -Url $sharepointSiteUrl -Credentials $Credentials
 
 Get-PnpList -Includes ContentTypes,ItemCount | foreach-object {
     $list = $_
+    $roomsToUpdate = @()
+
     if($list.ContentTypes | Where-Object Name -eq "VirtualRoundingRoom")
     {
         Write-Host "Preparing to schedule events for " $list.Title
@@ -118,14 +126,23 @@ Get-PnpList -Includes ContentTypes,ItemCount | foreach-object {
             $joinUrl = $meeting.joinUrl
 
             $calendarEvent = New-CalendarEvent -RoomAccountId $roundingRoomAccountAADUser.ObjectId -EventTitle $roundingLIstItem["Title"] -meetingUrl $joinUrl
-            Write-Host "aaahhhh"
-            
-            Set-PnpListItem -List $list.Title -Identity $roundingListItem.Id -Values @{"MeetingLink" = "$joinUrl, Join Room"; "EventID"=$calendarEvent.id}
+            $roomObject = New-Object psobject -Property @{
+                ListItemId = $RoundingListItem.Id
+                JoinUrl =  "$joinUrl, Join Room"
+                EventId = $calendarEvent.EventId
+            }
+
+            $roomsToUpdate += $roomObject
+
             Write-Host "Deployed Meetings for Room " $roundingListItem["Title"]
         }
         
+        if($roomsToUpdate.Count -ge 1)
+            {
+            $roomsToUpdate | ForEach-Object {
+                Set-PnpListItem -List $list.Title -Identity $_.ListItemId -Values @{"MeetingLink" = $_.JoinUrl; "EventID"=$_.EventId}
+                Write-Host "List Update for Meetings for Room " $roundingListItem["Title"]
+            }
+        }
     }
 }
-
-
-
