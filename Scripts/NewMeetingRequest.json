@@ -1,0 +1,14 @@
+{
+    "startDateTime": "{0}",
+    "endDateTime": "{1}",
+    "subject": "{2}",
+    "participants": {
+      "organizer": {
+        "identity": {
+          "user": {
+            "id": "{3}"
+          }
+        }
+      }
+    }
+  }
