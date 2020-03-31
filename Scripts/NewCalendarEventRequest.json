@@ -1,0 +1,19 @@
+{
+    "subject": "{0}",
+    "body": {
+      "contentType": "HTML",
+      "content": "<p><a href='{1}'><span style='font-size: 24px'><strong>Join Microsoft Teams Meeting</strong></span></a></p>"
+    },
+    "start": {
+      "dateTime": "{2}",
+      "timeZone": "{3}"
+    },
+    "end": {
+      "dateTime": "{4}",
+      "timeZone": "{3}}"
+    },
+    "onlineMeetingUrl": "{1}",
+    "location": {
+      "displayName": "Microsoft Teams Meeting"
+    }
+  }
