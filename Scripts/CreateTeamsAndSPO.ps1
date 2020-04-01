@@ -26,7 +26,7 @@ $subLocationsCsvFile = ""
 #UPNs of A desired Team owner (will apply to all Teams)
 #NEEDS TO BE THE SAME ACCOUNT YOU LOG IN WITH DURING THIS SCRIPT
 $groupOwner = "Kelly@contosohealthsystem.onmicrosoft.com"
-#Path of the JSON file (download from same repository as this script)
+#Path of the JSON file for the list view (SharePointViewFormatting.json)
 $jsonFile = ""
 #Team Name Suffix - Text to be added after LocationName to form the team name (use this in the Flow later in the setup process too)
 #Example: LocationName:"Building 2" + Suffix:"Patient Rooms" = Team Name: "Building 2 Patient Rooms"
