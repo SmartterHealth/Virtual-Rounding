@@ -17,26 +17,22 @@ Please see https://github.com/SmartterHealth/Virtual-Rounding/
 #>
 
 #--------------------------Variables---------------------------#
-#Path of the first CSV file. (Columns expected: LocationName, MembersGroupName)
-#LOCATION NAMES SHOULD MATCH AccountLocations FROM CreateRooms SCRIPT
-$locationsCsvFile = ""
-#Path of the first CSV file. (Columns expected: SubLocationName, LocationName)
-#SUBLOCATION NAMES SHOULD MATCH AccountSubLocations FROM CreateRooms SCRIPT
-$subLocationsCsvFile = ""
-#UPNs of A desired Team owner (will apply to all Teams)
-#NEEDS TO BE THE SAME ACCOUNT YOU LOG IN WITH DURING THIS SCRIPT
-$groupOwner = "Kelly@contosohealthsystem.onmicrosoft.com"
-#Path of the JSON file for the list view (SharePointViewFormatting.json)
-$jsonFile = ""
-#Team Name Suffix - Text to be added after LocationName to form the team name (use this in the Flow later in the setup process too)
-#Example: LocationName:"Building 2" + Suffix:"Patient Rooms" = Team Name: "Building 2 Patient Rooms"
-$teamNameSuffix = "Virtual Rounding" #*required*
-#Azure AD App Registration Info:
-$clientId = "" #from Azure AD App Registration
-$tenantName = "contosohealthsystem.onmicrosoft.com" # your onmicrosoft domain
-$clientSecret = "" #from Azure AD App Registration
-#Define your Tenant SPO Url
-$sharepointBaseUrl = "https://contosohealthsystem.sharepoint.com/" #ensure this ends with a /
+$configFilePath = ".\Scripts\RunningConfig.json"
+
+
+$configFile = Get-Content -Path $configFilePath | ConvertFrom-Json
+
+
+$locationsCsvFile = $configFile.LocationCsvPaths.Locations
+$subLocationsCsvFile = $configFile.LocationCsvPaths.SubLocations
+$groupOwner = $configFile.TenantInfo.MeetingSchedulingUser
+$spviewJsonFilePath = $configFile.ViewJson.SPViewJsonFilePath
+$teamNameSuffix = $configFile.GroupConfiguration.RoundingTeamPrefix
+$clientId = $configFile.ClientCredential.Id
+$clientSecret = $configFile.ClientCredential.Secret
+$tenantName = $configFile.TenantInfo.TenantName
+$sharepointBaseUrl = $configFile.TenantInfo.SPOBaseUrl
+
 #-------------------------Script Setup-------------------------#
 $credentials = Get-Credential
 
@@ -48,9 +44,6 @@ Connect-MicrosoftTeams -Credential $credentials
 
 Import-Module SharePointPnPPowerShellOnline
 
-#$Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $credentials -Authentication Basic -AllowRedirection
-#Import-PSSession $Session -DisableNameChecking
-
 #Import CSV of Teams
 $locationsList = Import-Csv -Path $locationsCsvFile
 
@@ -58,8 +51,8 @@ $locationsList = Import-Csv -Path $locationsCsvFile
 $subLocationsList = Import-Csv -Path $subLocationsCsvFile
 
 #Import JSON formatting file
-$jsonContent = Get-Content $jsonFile
-$jsonContent | ConvertFrom-Json | Out-Null
+$spViewJson = Get-Content $spviewJsonFilePath
+$spViewJson | ConvertFrom-Json | Out-Null
 
 #Prepare Microsoft Graph API Calls
 $ReqTokenBody = @{
@@ -121,7 +114,7 @@ foreach ($sublocation in $sublocationsList) {
     $newView = Add-PnPView -List $list -Title Meetings -SetAsDefault -Fields Title, RoomLocation, MeetingLink
     Start-Sleep -Seconds 20 #toolong?
     $view = Get-PnPView -List $list -Identity Meetings
-    $view.CustomFormatter = $jsonContent
+    $view.CustomFormatter = $spViewJson
     $view.Update()
     $view.Context.ExecuteQuery()
     $viewUrl = ($teamSpoUrl + "/Lists/" + $sublocationShortName + "/Meetings.aspx")

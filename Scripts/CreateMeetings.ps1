@@ -32,8 +32,6 @@ $tenantName = $configFile.TenantInfo.TenantName
 $clientID = $configFile.ClientCredential.Id
 $clientSecret = $configFile.ClientCredential.Secret
 
-#must be a user allowed to create Teams meetigns and create calendar events.  Recommend a "room provisioner' account to avoid 
-#cluttering your own calendar"
 $meetingSchedulerUserName = $configFIle.TenantInfo.MeetingSchedulingUser
 
 #date/time values below
@@ -117,26 +115,32 @@ Get-PnpList -Includes ContentTypes,ItemCount | foreach-object {
         $listItems = Get-PnPListItem -List $list
         $listItems | ForEach-Object  {
             $roundingListItem = $_
+            #get the room account associated with the room list item. 
             $roundingRoomAccount = $roundingLIstItem["RoomAccount"].Email
             $roundingRoomAccountAADUser = Get-AzureAdUser -ObjectId $roundingRoomAccount
             
             Write-Host "Preparing to deploy meetings for Room " $roundingListItem["Title"]
 
+            #create the teams meeting
             $meeting = New-TeamsMeeting -SchedulingAccountId $scriptUserId -MeetingTitle $roundingListItem["Title"]
             $joinUrl = $meeting.joinUrl
 
+            #create the calendar event, sending it to the room account
             $calendarEvent = New-CalendarEvent -RoomAccountId $roundingRoomAccountAADUser.ObjectId -EventTitle $roundingLIstItem["Title"] -meetingUrl $joinUrl
+            
+            #build out our info we will use to update the SharePoint list
             $roomObject = New-Object psobject -Property @{
                 ListItemId = $RoundingListItem.Id
                 JoinUrl =  "$joinUrl, Join Room"
                 EventId = $calendarEvent.EventId
             }
-
+            
             $roomsToUpdate += $roomObject
 
             Write-Host "Deployed Meetings for Room " $roundingListItem["Title"]
         }
         
+        #update the SharePoint list with the rooms. Note we have to do this in a separate loop to avoid breaking the PnP update process while looping the parent list objects
         if($roomsToUpdate.Count -ge 1)
             {
             $roomsToUpdate | ForEach-Object {

@@ -18,19 +18,21 @@ Please see https://github.com/SmartterHealth/Virtual-Rounding/
 #>
 
 #--------------------------Variables---------------------------#
-#Path of the CSV file
-#Columns expected: AccountName, AccountUPN, AccountPassword, AccountLocation, AccountSubLocation
-$csvFile = ""
-#Name of Security Group for Group Based Licensing
-$groupName = "Patient Rooms"
-#Name of Teams Policies configured to be applied to accounts
-$meetingPolicy = "Virtual Rounding"
-$messagingPolicy = "Virtual Rounding"
-$liveEventsPolicy = "Virtual Rounding"
-$appPermissionPolicy = "Virtual Rounding"
-$appSetupPolicy = "Virtual Rounding"
-$callingPolicy = "Virtual Rounding"
-$teamsPolicy = "Virtual Rounding"
+$configFilePath = ".\Scripts\RunningConfig.json"
+$configFile = Get-Content -Path $configFilePath | ConvertFrom-Json
+
+
+$roomListCsvFilePath = $configFile.LocationCsvPaths.Rooms
+
+$groupName = $configFile.TenantInfo.RoomsADGroup
+
+$meetingPolicy = $configFile.TeamsInfo.meetingPolicyName
+$messagingPolicy = $configFile.TeamsInfo.messagingPolicyName
+$liveEventsPolicy = $configFile.TeamsInfo.liveEventPolicyName
+$appPermissionPolicy = $configFile.TeamsInfo.appPermissionPolicyName
+$appSetupPolicy = $configFile.TeamsInfo.appSetupPolicyName
+$callingPolicy = $configFile.TeamsInfo.callingPolicyName
+$teamsPolicy = $configFile.TeamsInfo.teamsPolicyName
 
 #-------------------------Script Setup-------------------------#
 #Import-Module AzureAD
@@ -41,7 +43,7 @@ $Session = New-CsOnlineSession
 Import-PSSession $Session
 #Get ObjectID of Azure AD Group
 $groupID = (Get-AzureADGroup -SearchString $groupName).objectID
-$accountList = Import-Csv -Path $csvFile
+$accountList = Import-Csv -Path $roomListCsvFilePath
 
 #-----------Create user accounts and apply licensing-----------#
 foreach ($account in $accountList){
