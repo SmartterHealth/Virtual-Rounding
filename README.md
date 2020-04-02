@@ -75,7 +75,7 @@ Create Policies in the Microsoft Teams Admin Center matching the below policies.
 ![Calling Policy](/Documentation/Images/CallingPolicy.png)
 
 ### Running Config Template Update
-![Running Config Json Template](/Documenation/Images/PolicyTemplateUpdates.png)
+![Running Config Json Template](/Documentation/Images/PolicyTemplateUpdates.png)
 
 ## Application Registration {screenshots to be added}
 
