@@ -33,6 +33,8 @@ $clientSecret = $configFile.ClientCredential.Secret
 $tenantName = $configFile.TenantInfo.TenantName
 $sharepointBaseUrl = $configFile.TenantInfo.SPOBaseUrl
 
+$provisionFamilyMeetingsSetting = $configFile.BetaInfo.ProvisionFamilyMeetings
+
 #-------------------------Script Setup-------------------------#
 $credentials = Get-Credential
 
@@ -83,6 +85,7 @@ foreach ($location in $locationsList) {
     Add-PnPField -Type URL -InternalName "MeetingLink" -DisplayName "Meeting Link" -Group "VirtualRounding"
     Add-PnPField -Type Text -InternalName "EventID" -DisplayName "EventID" -Group "VirtualRounding"
     Add-PnPField -Type User -InternalName "RoomAccount" -DisplayName "RoomAccount" -Group "VirtualRounding"
+    Add-PnpField -Type String -InternalName "FamilyMeetingRecipients" -DisplayName "Family Meeting Emails" -Group "VirtualRounding"
     Add-PnPContentType -Name "VirtualRoundingRoom" -Group "VirtualRounding"
     Start-Sleep -Seconds 5
     $contentType = Get-PnPContentType -Identity "VirtualRoundingRoom"
@@ -91,6 +94,10 @@ foreach ($location in $locationsList) {
     Add-PnPFieldToContentType -Field "MeetingLink" -ContentType $contentType
     Add-PnPFieldToContentType -Field "EventID" -ContentType $contentType
     Add-PnPFieldToContentType -Field "RoomAccount" -ContentType $contentType
+    if($provisionFamilyMeetingsSetting)
+    {
+        Add-PnPFieldToContentType -Field "FamilyMeetingRecipients" -ContentType $contentType
+    }
     Disconnect-PnPOnline
 }
 

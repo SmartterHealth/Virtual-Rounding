@@ -1,4 +1,8 @@
 {
+    "BetaInfo":
+    {
+        "ProvisionFamilyMeetings": "true"
+    },
     "ClientCredential":
     {
         "Id": "",
@@ -40,6 +44,8 @@
         "appPermissionPolicyName": "Virtual Rounding Room",
         "appSetupPolicyName": "Virtual Rounding Room",
         "callingPolicyName": "Virtual Rounding Room",
-        "teamsPolicyName": "Virtual Rounding Room"
+        "teamsPolicyName": "Virtual Rounding Room",
+        "familyMeetingStartTimeUTC": "13:00",
+        "familyMeetingEndTimeUTC":  "19:00"
     }
 }
