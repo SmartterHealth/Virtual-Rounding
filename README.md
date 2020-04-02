@@ -1,7 +1,7 @@
 # Virtual Rounding using Microsoft Teams
 
-_Version: 0.6
-Updated 3/27/2020_
+_Version: 0.7
+Updated 4/2/2020_
 
 For deployment assistance, questions or comments, plesae fill out [this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR6mlTNdIzWRKq7zcu5h9FqNUMVoxSU0yS0hCSVhKMkxRREZaVE1IRU8wVy4u). Someone from Microsoft will reach out as soon as possible.
 
