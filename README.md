@@ -56,7 +56,7 @@ All configuration steps below assume that you would like to set this up at scale
 
 ## Create Teams Policies
 
-Create Policies in the Microsoft Teams Admin Center matching the below policies. The screenshots below are recommended configuration, but you should configure to your organization's policy/needs.
+Create Policies in the Microsoft Teams Admin Center matching the below policies. The screenshots below are recommended configuration, but you should configure to your organization's policy/needs.  As you create each policy, note it's name inside of the Running Config JSON template file.  
 
 ### Teams Policy
 ![Teams Policy](/Documentation/Images/TeamsPolicy.png)
@@ -74,6 +74,9 @@ Create Policies in the Microsoft Teams Admin Center matching the below policies.
 ### Calling Policy
 ![Calling Policy](/Documentation/Images/CallingPolicy.png)
 
+### Running Config Template Update
+![Running Config Json Template](/Documenation/Images/PolicyTemplateUpdates.png)
+
 ## Application Registration {screenshots to be added}
 
 For various steps in this process we will need to call the Microsoft Graph. To do that, an app registration is required in Azure AD. This will require a Global Administrator account.
@@ -81,17 +84,17 @@ For various steps in this process we will need to call the Microsoft Graph. To d
 1. Navigate to [https://aad.portal.azure.com/#blade/Microsoft\_AAD\_IAM/ActiveDirectoryMenuBlade/RegisteredApps](https://aad.portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps) and sign in as a Global Administrator.
 2. Click New Registration.
 3. Provide an application name, select &quot;Accounts in this organizational directory only&quot;, and leave Redirect URI blank. Click Register.
-4. Note down Application and Directory IDs to use later.
+4. Place the Application ID under ClientCredential... ID in the Config JSON file
 5. From the left menu, click &quot;API permissions&quot; to grant some permissions to the application.
 6. Click &quot;+ Add a permission&quot;.
 7. Select &quot;Microsoft Graph&quot;.
 8. Select Application permissions.
-9. Add the following permissions: Calendars.ReadWrite, Group.ReadWrite.All, OnlineMeetings.ReadWrite.All.
+9.  Add the following permissions: Calendars.ReadWrite, Group.ReadWrite.All, OnlineMeetings.ReadWrite.All.
 10. Click &quot;Grant admin consent for …&quot;
 11. From the left menu, click &quot;Certificates &amp; secrets&quot;.
 12. Under &quot;Client secrets&quot;, click &quot;+ New client secret&quot;.
 13. Provide a description and select an expiry time for the secret and click &quot;Add&quot;.
-14. Note down the secret Value.
+14. Place the generated Secret in the Config JSON file under ClientCredential... Secret You must grab this value now, as it will not be able to be returned later. 
 
 ## Patient Room Account Setup
 
@@ -193,6 +196,8 @@ Once the above is ready, you can run CreateTeamsAndSPO.ps1. As with all open sou
 
 To create the meetings, we will use Power Automate. Power Automate offers a simple way to call the Microsoft Graph API, and the ability to run on a regular basis if we need in the future.
 
+Note that there is an alternate script in this repository, CreateMeetings.ps1 that provisions meetings from the SharePoint lists rather than through PowerAutomate.  See section below "Meeting Creation Alternate" for details on the prerequisites for the execution of this script
+
 Prerequisites:
 
 - A Power Automate Premium license will be required for this piece (P1, P2, Per User or Per App all work).
@@ -209,6 +214,18 @@ Instructions:
 5. Update all variables
 
 Once it's been at least 3 hours since you've created the room accounts, you can run the Flow to create all the meeting links. Ideally, wait 24 hours. This is to ensure the Teams Policies properly apply to the room accounts before a meeting is created.
+
+## Meeting Creation Alternative
+In the provisoined list for the location, you will need to pre-populate the list with the below information:
+
+For each room to be scheduled, create a row in the list
+1) Title of the room to be updated. E.g. Room 1234
+2) Room Account should be set to the provisioned AD account for the room. E.g. Room1234@something.onmicrosoft.com 
+3) The other fields can be left blank in this path if desired
+
+Update the conifg.json file to include the direct path to the SharePoint site connected to the Location's Team (Tenant Info... SPO URL) (e.g. https://something.sharepoint.com/sites/NorthTowerFloor1), and completing all other values. 
+
+Execute CreateMeetings.ps1; and it will generate a Teams meeting and populate the "Join Room" link with each meeting for each room in each Location's list of meetings. 
 
 ## Meeting Updating
 
