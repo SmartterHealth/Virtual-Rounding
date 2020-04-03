@@ -81,27 +81,38 @@ Create Policies in the Microsoft Teams Admin Center matching the below policies.
 ### Calling Policy
 ![Calling Policy](/Documentation/Images/CallingPolicy.png)
 
-### Running Config Template Update
-![Running Config Json Template](/Documentation/Images/PolicyTemplateUpdates.png)
 
-## Application Registration {screenshots to be added}
+## Azure AD Application Registration
 
 For various steps in this process we will need to call the Microsoft Graph. To do that, an app registration is required in Azure AD. This will require a Global Administrator account.
 
 1. Navigate to [https://aad.portal.azure.com/#blade/Microsoft\_AAD\_IAM/ActiveDirectoryMenuBlade/RegisteredApps](https://aad.portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps) and sign in as a Global Administrator.
 2. Click New Registration.
 3. Provide an application name, select &quot;Accounts in this organizational directory only&quot;, and leave Redirect URI blank. Click Register.
-4. Place the Application ID under ClientCredential... ID in the Config JSON file
+   
+   ![Application Registration Setup](/Documentation/Images/AADAppRegistration-Register.png)
+   
+4. Place the Application ID in ClientCredential... ID in the Config JSON file
+  
+   ![Application Registration App Id](/Documentation/Images/AADAppRegistration-AppId.png)
+
 5. From the left menu, click &quot;API permissions&quot; to grant some permissions to the application.
 6. Click &quot;+ Add a permission&quot;.
 7. Select &quot;Microsoft Graph&quot;.
 8. Select Application permissions.
-9.  Add the following permissions: Calendars.ReadWrite, Group.ReadWrite.All, OnlineMeetings.ReadWrite.All.
-10. Click &quot;Grant admin consent for …&quot;
-11. From the left menu, click &quot;Certificates &amp; secrets&quot;.
-12. Under &quot;Client secrets&quot;, click &quot;+ New client secret&quot;.
-13. Provide a description and select an expiry time for the secret and click &quot;Add&quot;.
-14. Place the generated Secret in the Config JSON file under ClientCredential... Secret You must grab this value now, as it will not be able to be returned later. 
+   
+   ![Application Registration App Permissions](/Documentation/Images/AADAppRegistration-GraphAppPerm.png)
+
+9.  Add the following permissions: Calendars.ReadWrite, Group.ReadWrite.All, OnlineMeetings.ReadWrite.All.  Click &quot;Add permissions&quot;.
+10. Your API Permissions should look like the below now.
+    
+    ![Application Permissions Pre Admin Consent](/Documentation/Images/AADAppRegistration-PermissionsPreConAdmin.png)
+
+11. Click &quot;Grant admin consent for …&quot;.  Click &quot;Yes&quot; to grant the application global consent within Contoso. 
+12. From the left menu, click &quot;Certificates &amp; secrets&quot;.
+13. Under &quot;Client secrets&quot;, click &quot;+ New client secret&quot;.
+14. Provide a description and select an expiration time for the secret and click &quot;Add&quot;.
+15. Place the generated Secret in the Config JSON file under ClientCredential... Secret You must grab this value now, as it will not be able to be returned later. 
 
 ## Patient Room Account Setup
 
@@ -195,7 +206,7 @@ Once the above is ready, you can run CreateTeamsAndSPO.ps1. As with all open sou
 
 ## Patient Room Meeting Setup
 
-## Meeting Creation
+### Meeting Creation
 
 To create the meetings, we will use Power Automate. Power Automate offers a simple way to call the Microsoft Graph API, and the ability to run on a regular basis if we need in the future.
 
@@ -219,7 +230,7 @@ Instructions:
 
 Once it's been at least 3 hours since you've created the room accounts, you can run the Flow to create all the meeting links. Ideally, wait 24 hours. This is to ensure the Teams Policies properly apply to the room accounts before a meeting is created.
 
-## Meeting Creation Alternative
+### Meeting Creation Alternative
 In the provisoined list for the location, you will need to pre-populate the list with the below information:
 
 For each room to be scheduled, create a row in the list
@@ -231,7 +242,7 @@ Update the conifg.json file to include the direct path to the SharePoint site co
 
 Execute CreateMeetings.ps1; and it will generate a Teams meeting and populate the "Join Room" link with each meeting for each room in each Location's list of meetings. 
 
-## Meeting Updating
+### Meeting Updating
 
 If there is an error with a meeting link, there is a flow that can be manually run to update the link. Please note when this happens, someone will need to end the meeting on the patient room device and join the new meeting.
 Please check back here soon for the details of the flow for this purpose.
@@ -252,32 +263,30 @@ If Intune is not to be used to manage devices (or another MDM associated with Az
 1. Navigate to https://portal.azure.com/#blade/Microsoft_AAD_IAM/ConditionalAccessBlade/NamedNetworksV2
 2. For each public IP address your organization, input a new "Named Location", marking the location as a trusted location.  (Note, these locations are input in CIDR format if you need to input multiple IP ranges there are [many calculators available](https://www.bing.com/search?q=cidr+calculator) )
 
-![Trusted Ranged](/Documentation/Images/CAPolicy-TrustedLocations.png)
+    ![Trusted Ranged](/Documentation/Images/CAPolicy-TrustedLocations.png)
 
 Create a CA Policy to Ensure the Patient Room accounts only have access from trusted network locations (and a MDM protected device if Azure AD MDM integration or Intune is available)
-1. Navigate to https://portal.azure.com/#blade/Microsoft_AAD_IAM/ConditionalAccessBlade/Policies and click "+ New Policy"
-2. Input a name for the policy, such as "Virtual Rounding Rooms - Trusted Grant"
-3. Select "Users and Groups", and input "Select users and groups"... and "Users and groups"... Select the group you have added all of the room accounts to (and used to assign the licenses to)
+1. Navigate to https://portal.azure.com/#blade/Microsoft_AAD_IAM/ConditionalAccessBlade/Policies and click "+ New Policy". 
+2. Input a name for the policy, such as "Virtual Rounding Rooms - Trusted Grant". 
+3. Select "Users and Groups", and input "Select users and groups"... and "Users and groups"... Select the group you have added all of the room accounts to (and used to assign the licenses to).  Be careful on this screen, if this group is not properly applied; you could be locking out all accounts to all services. 
 
-![CA Policy Groups](/Documentation/Images/CAPolicy-UsersAndGroups.png)
+    ![CA Policy Groups](/Documentation/Images/CAPolicy-UsersAndGroups.png)
 
 4. Under "Cloud apps or actions", select "All cloud apps"
 5. Under "Condtions", select "Locations", and Select "Include... Any location" and "Exclude... All trusted locations".  If there are other trusted locations in your portal that the patient rooms should not be  accessed from; you may opt to choose "Selected locations" and pick specific locations to white-list. 
 
-![Include All IPs](Documentation/Images/CAPolicy-IncludeAllLocations.png)
-![Exclude Trusted IPs](Documentation/Images/CAPolicy-ExcludeAllTrustedLocations.png)
+    ![Include All IPs](Documentation/Images/CAPolicy-IncludeAllLocations.png)   ![Exclude Trusted IPs](Documentation/Images/CAPolicy-ExcludeAllTrustedLocations.png)
 
 6. If you are leveraging Intune as your MDM; you may opt to configure a Device State inclusion/exclusion.
 7. Under "Grant", select "Block Access".  
 
-![Block Access](Documentation/Images/CAPolicy-GrantControls.png)
+    ![Block Access](Documentation/Images/CAPolicy-GrantControls.png)
 
 8. Under "Enable policy", first select "Report-Only".  
 9.  Log into a Room Account from a trusted location and/or device, and an untrusted location and/or device. 
 10.  Wait at least 10 minutes for AAD Login logs to propagate, and navigate to https://portal.azure.com/#blade/Microsoft_AAD_IAM/UsersManagementMenuBlade/AllUsers. 
 11.  Search for the test room account, and under "Sign-Ins" view the "good" and the "bad" sign in attempts. Click on "Report Only", and confirm that the untrusted sign-in should result in "Failure", and the trusted sign-in as "Success". 
 12.  Update the Conditional Access policy's publish state from "Report Only" to "On" and confirm the device is behaving as expected. 
-
 
 
 ### Potential Additional CA Policy
