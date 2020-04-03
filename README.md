@@ -240,6 +240,36 @@ We strongly recommend managing the devices with Intune MDM and enabling kiosk mo
 
 ## Conditional Access Policies
 
-We strongly recommend applying a conditional access policy to the Azure AD Group used in _Patient Room Account Setup_ (contains all Patient Room accounts). This policy should limit sign ins to either Intune Managed Devices or specific trusted IPs. This is to limit the risk of the account becoming compromised and a third party logging into an ongoing patient meeting.
+We strongly recommend applying a conditional access policy to the Azure AD Group used in _Patient Room Account Setup_ (contains all Patient Room accounts). This policy should limit sign ins to either Intune Managed Devices and/or specific trusted IPs. This is to limit the risk of the account becoming compromised and a third party logging into an ongoing patient meeting.
 
-(instructions to be added)
+Below are recommended settings to configure.  Should your organization have existing Conditional Access policies in place, creation of new policies should be carefully tested before being broadly deployed (although all updates below are designed to only be targetted to the Patient Room devices).  Additional policies may need to be implemented for healthcare providers should they be given remote access to Teams to provide remote care. 
+
+If Intune is not to be used to manage devices (or another MDM associated with Azure AD), network restrictions should be created as per below:
+1. Navigate to https://portal.azure.com/#blade/Microsoft_AAD_IAM/ConditionalAccessBlade/NamedNetworksV2
+2. For each public IP address your organization, input a new "Named Location", marking the location as a trusted location.  (Note, these locations are input in CIDR format if you need to input multiple IP ranges there are [many calculators available](https://www.bing.com/search?q=cidr+calculator) )
+
+![Trusted Ranged](/Documentation/Images/CAPolicy-TrustedLocations.png)
+
+Create a CA Policy to Ensure the Patient Room accounts only have access from trusted network locations (and a MDM protected device if Azure AD MDM integration or Intune is available)
+1. Navigate to https://portal.azure.com/#blade/Microsoft_AAD_IAM/ConditionalAccessBlade/Policies and click "+ New Policy"
+2. Input a name for the policy, such as "Virtual Rounding Rooms - Trusted Grant"
+3. Select "Users and Groups", and input "Select users and groups"... and "Users and groups"... Select the group you have added all of the room accounts to (and used to assign the licenses to)
+![CA Policy Groups](/Documentation/Images/CAPolicy-UsersAndGroups.png)
+4. Under "Cloud apps or actions", select "All cloud apps"
+5. Under "Condtions", select "Locations", and Select "Include... Any location" and "Exclude... All trusted locations".  If there are other trusted locations in your portal that the patient rooms should not be  accessed from; you may opt to choose "Selected locations" and pick specific locations to white-list. 
+![Include All IPs](Documentation/Images/CAPolicy-IncludeAllLocations.png)
+![Exclude Trusted IPs](Documentation/Images/CAPolicy-ExcludeAllTrustedLocations.png)
+6. If you are leveraging Intune as your MDM; you may opt to configure a Device State inclusion/exclusion.
+7. Under "Grant", select "Block Access".  
+![Block Access](Documentation/Images/CAPolicy-GrantControls.png)
+8. Under "Enable policy", first select "Report-Only".  
+9.  Log into a Room Account from a trusted location and/or device, and an untrusted location and/or device. 
+10. Wait at least 10 minutes for AAD Login logs to propagate, and navigate to https://portal.azure.com/#blade/Microsoft_AAD_IAM/UsersManagementMenuBlade/AllUsers. 
+11. Search for the test room account, and under "Sign-Ins" view the "good" and the "bad" sign in attempts. Click on "Report Only", and confirm that the untrusted sign-in should result in "Failure", and the trusted sign-in as "Success". 
+12. Update the Conditional Access policy's publish state from "Report Only" to "On" and confirm the device is behaving as expected. 
+
+
+
+Potential Additional CA policy
+
+As the Patient Room accounts are licensed for Teams, SharePoint, Exchange, etc.; if the device is not properly secured in Kiosk mode, a patient device could be used to "break out" of the Teams experience as designed and to get direct access to other data, such as the Exchange Online calendar and GAL.  As such, an additional CA policy may need to be considered to block access to all Client Applications other than Microsoft Teams and SharePoint Online for the Room Accounts. SharePoint Online could be further restricted via App Enforced restrictions to be read-only from the Patient Room experience if so desired. 
