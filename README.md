@@ -254,19 +254,25 @@ Create a CA Policy to Ensure the Patient Room accounts only have access from tru
 1. Navigate to https://portal.azure.com/#blade/Microsoft_AAD_IAM/ConditionalAccessBlade/Policies and click "+ New Policy"
 2. Input a name for the policy, such as "Virtual Rounding Rooms - Trusted Grant"
 3. Select "Users and Groups", and input "Select users and groups"... and "Users and groups"... Select the group you have added all of the room accounts to (and used to assign the licenses to)
+
 ![CA Policy Groups](/Documentation/Images/CAPolicy-UsersAndGroups.png)
+
 4. Under "Cloud apps or actions", select "All cloud apps"
 5. Under "Condtions", select "Locations", and Select "Include... Any location" and "Exclude... All trusted locations".  If there are other trusted locations in your portal that the patient rooms should not be  accessed from; you may opt to choose "Selected locations" and pick specific locations to white-list. 
+
 ![Include All IPs](Documentation/Images/CAPolicy-IncludeAllLocations.png)
 ![Exclude Trusted IPs](Documentation/Images/CAPolicy-ExcludeAllTrustedLocations.png)
+
 6. If you are leveraging Intune as your MDM; you may opt to configure a Device State inclusion/exclusion.
 7. Under "Grant", select "Block Access".  
+
 ![Block Access](Documentation/Images/CAPolicy-GrantControls.png)
+
 8. Under "Enable policy", first select "Report-Only".  
 9.  Log into a Room Account from a trusted location and/or device, and an untrusted location and/or device. 
-10. Wait at least 10 minutes for AAD Login logs to propagate, and navigate to https://portal.azure.com/#blade/Microsoft_AAD_IAM/UsersManagementMenuBlade/AllUsers. 
-11. Search for the test room account, and under "Sign-Ins" view the "good" and the "bad" sign in attempts. Click on "Report Only", and confirm that the untrusted sign-in should result in "Failure", and the trusted sign-in as "Success". 
-12. Update the Conditional Access policy's publish state from "Report Only" to "On" and confirm the device is behaving as expected. 
+10.  Wait at least 10 minutes for AAD Login logs to propagate, and navigate to https://portal.azure.com/#blade/Microsoft_AAD_IAM/UsersManagementMenuBlade/AllUsers. 
+11.  Search for the test room account, and under "Sign-Ins" view the "good" and the "bad" sign in attempts. Click on "Report Only", and confirm that the untrusted sign-in should result in "Failure", and the trusted sign-in as "Success". 
+12.  Update the Conditional Access policy's publish state from "Report Only" to "On" and confirm the device is behaving as expected. 
 
 
 
