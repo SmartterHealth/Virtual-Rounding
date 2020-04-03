@@ -50,6 +50,13 @@ Doctors will not be directly invited to any meetings, but instead have access to
 - Enough Office 365 Licenses for each Patient Room account (any License SKU that includes Microsoft Teams and Exchange Online [plan 1 or 2])
 - Optional: Intune licenses for management of Patient Room devices
 
+If you wish to execute the automated portions of this provisioning, you will need the following PowerShell modules/extensions installed in a location your Admin Account is able to log into
+- [Azure Active Directory PowerShell for Graph](https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0)
+- [Skype for Business Online PowerShell](https://docs.microsoft.com/en-us/office365/enterprise/powershell/manage-skype-for-business-online-with-office-365-powershell)
+- [SharePoint Online PnP PowerShell](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets?view=sharepoint-ps)
+- [Microsoft Teams PowerShell](https://www.powershellgallery.com/packages/MicrosoftTeams/)
+
+ 
 # Configuration
 
 All configuration steps below assume that you would like to set this up at scale with a large amount of accounts. If you would like to test out the solution or POC with a smaller amount of user accounts, no scripting or Power Automate is needed. Simply follow along but skip running scripts/flows and instead manually complete the same steps that are listed for each script/flow.
@@ -127,8 +134,7 @@ Before running this script, you will need the following:
       - Sub Location of the room (example: Floor 1). This will be used to categorize the rooms later on and must be tied to either a Channel name (see _Team/List/Tab_ sections below).
       - This will be filled into the "Job Title" field of the user.
   - Sample file available (RoomAccounts.csv)
-- Azure AD PowerShell Module v2: [https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0](https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0)
-- Skype for Business Online PowerShell: [https://docs.microsoft.com/en-us/office365/enterprise/powershell/manage-skype-for-business-online-with-office-365-powershell](https://docs.microsoft.com/en-us/office365/enterprise/powershell/manage-skype-for-business-online-with-office-365-powershell)
+
 
 ### Script
 
@@ -157,7 +163,7 @@ In this repository is a PowerShell Script (CreateTeamsAndSPO.ps1) that:
 3. Adds members to Team
 4. Creates SharePoint Lists in the associated SharePoint site
 5. Adds columns and custom view to lists
-5a. Columns: Title (exisitng by default), RoomLocation, RoomSubLocation, MeetingLink, EventID(skip if provisioning manually).
+5a. Columns: Title (existing by default), RoomLocation, RoomSubLocation, MeetingLink, EventID(skip if provisioning manually).
 5b. View: (Create a new view)[https://support.office.com/en-us/article/Create-change-or-delete-a-view-of-a-list-or-library-27AE65B8-BC5B-4949-B29B-4EE87144A9C9] and then (add in the JSON)[https://support.microsoft.com/en-us/office/formatting-list-views-f737fb8b-afb7-45b9-b9b5-4505d4427dd1?ui=en-us&rs=en-us&ad=us] from SharePointViewFormatting.json
 6. Creates Channels and pins the SharePoint list as a Tab
 7. Removes Wiki Tabs
@@ -167,7 +173,6 @@ Before running this script, you will need the following:
 - Azure AD Security Groups
   - You will specify security groups to copy membership from to the individual Teams in the below CSV (_MembersGroupName_).
   - These groups should contain the provider's accounts that you want to be added to the Teams as members. Do not include any of the room accounts you created earlier. They should _not_ be members of the Team. 
-- The App ID and Client Secret from the Azure AD App Registration (earlier step in this guide).
 - A CSV file with the desired Team(s) information
   - Columns:
     - LocationName
@@ -184,10 +189,8 @@ Before running this script, you will need the following:
     - LocationName
       - Location Name. This must match the location names used for AccountLocation in _Patient Room Account Setup_. Ensure all Location Names from that earlier script are represented.
   - Sample file available (SubLocationList.csv)
-- Azure AD PowerShell Module v2: [https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0](https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0)
-- Microsoft Teams PowerShell: [https://www.powershellgallery.com/packages/MicrosoftTeams/](https://www.powershellgallery.com/packages/MicrosoftTeams/)
-- SharePoint Online PnP PowerShell: [https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets?view=sharepoint-ps](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets?view=sharepoint-ps)
 
+  
 Once the above is ready, you can run CreateTeamsAndSPO.ps1. As with all open source scripts, please test and review before running in your production environment. Ensure you fill in the appropriate variables before running the script.
 
 ## Patient Room Meeting Setup
@@ -196,7 +199,7 @@ Once the above is ready, you can run CreateTeamsAndSPO.ps1. As with all open sou
 
 To create the meetings, we will use Power Automate. Power Automate offers a simple way to call the Microsoft Graph API, and the ability to run on a regular basis if we need in the future.
 
-Note that there is an alternate script in this repository, CreateMeetings.ps1 that provisions meetings from the SharePoint lists rather than through PowerAutomate.  See section below "Meeting Creation Alternate" for details on the prerequisites for the execution of this script
+There is an alternate script in this repository, CreateMeetings.ps1 that provisions meetings from the SharePoint lists rather than through PowerAutomate.  See section below "Meeting Creation Alternate" for details on the prerequisites for the execution of this script
 
 Prerequisites:
 
@@ -204,6 +207,7 @@ Prerequisites:
 - An account with the Power Automate license applied to it, used for creating the Flows (ideally a service account).
 - SetupMeetingsFlow.zip from this repository
 - Get the Group GUID/ObjectID for your Azure AD Group used in _Patient Room Account Setup_ (find in the group properties in the Azure AD Portal)
+
 
 Instructions:
 
@@ -276,6 +280,6 @@ Create a CA Policy to Ensure the Patient Room accounts only have access from tru
 
 
 
-Potential Additional CA policy
+### Potential Additional CA Policy
 
 As the Patient Room accounts are licensed for Teams, SharePoint, Exchange, etc.; if the device is not properly secured in Kiosk mode, a patient device could be used to "break out" of the Teams experience as designed and to get direct access to other data, such as the Exchange Online calendar and GAL.  As such, an additional CA policy may need to be considered to block access to all Client Applications other than Microsoft Teams and SharePoint Online for the Room Accounts. SharePoint Online could be further restricted via App Enforced restrictions to be read-only from the Patient Room experience if so desired. 
