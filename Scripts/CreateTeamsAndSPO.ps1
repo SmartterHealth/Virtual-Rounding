@@ -18,10 +18,7 @@ Please see https://github.com/SmartterHealth/Virtual-Rounding/
 
 #--------------------------Variables---------------------------#
 $configFilePath = ".\Scripts\RunningConfig.json"
-
-
 $configFile = Get-Content -Path $configFilePath | ConvertFrom-Json
-
 
 $locationsCsvFile = $configFile.LocationCsvPaths.Locations
 $subLocationsCsvFile = $configFile.LocationCsvPaths.SubLocations
@@ -86,6 +83,7 @@ foreach ($location in $locationsList) {
     Add-PnPField -Type Text -InternalName "EventID" -DisplayName "EventID" -Group "VirtualRounding"
     Add-PnPField -Type User -InternalName "RoomAccount" -DisplayName "RoomAccount" -Group "VirtualRounding"
     Add-PnpField -Type String -InternalName "FamilyMeetingRecipients" -DisplayName "Family Meeting Emails" -Group "VirtualRounding"
+    Add-PnpField -Type URL -InternalName "FamilyMeetingLink" -DisplayName "Family Meeting Link" -Group "VirtualRounding"
     Add-PnPContentType -Name "VirtualRoundingRoom" -Group "VirtualRounding"
     Start-Sleep -Seconds 5
     $contentType = Get-PnPContentType -Identity "VirtualRoundingRoom"
@@ -97,6 +95,7 @@ foreach ($location in $locationsList) {
     if($provisionFamilyMeetingsSetting)
     {
         Add-PnPFieldToContentType -Field "FamilyMeetingRecipients" -ContentType $contentType
+        Add-PnPFieldToContentType -Field "FamilyMeetingLink" -ContentType $contentType
     }
     Disconnect-PnPOnline
 }
@@ -116,6 +115,7 @@ foreach ($sublocation in $sublocationsList) {
     $sublocationShortName = $sublocationName.replace('-','')
     $list = Get-PnPList -Identity ("Lists/" + $sublocationShortName)
     Set-PnPList -Identity $sublocationShortName -EnableContentTypes $true
+    
     #set Permissions?
     Add-PnPContentTypeToList -List $list -ContentType $contentType -DefaultContentType
     $newView = Add-PnPView -List $list -Title Meetings -SetAsDefault -Fields Title, RoomLocation, MeetingLink
@@ -127,6 +127,17 @@ foreach ($sublocation in $sublocationsList) {
     $viewUrl = ($teamSpoUrl + "/Lists/" + $sublocationShortName + "/Meetings.aspx")
     $viewUrlEncoded = [System.Web.HTTPUtility]::UrlEncode($viewUrl)
     $viewUrl = $viewUrl.replace(" ","%20")
+    
+    if($provisionFamilyMeetingsSetting)
+    {
+        Add-PnPView -List $list -Title "Family Meetings" -SetAsDefault -Fields Title, FamilyMeetingLink, FamilyMeetingRecipients
+        Start-Sleep -Seconds 20
+        $familiyMeetingView = Get-PnpView "Family Meetings"
+        $familyMeetingViewUrl = $teamSpoUrl + "/Lists/" + $sublocationShortName + "/FamilyMeetings.aspx"
+        $familyMeetingUrlEncoded = [System.Web.HttpUtility]::UrlEncode($familyMeetingViewUrl)
+        $familyMeetingUrl = $familyMeetingUrl.replace(" ","%20")
+    }
+
     #-------------------Create Channels------------------------#
     #Create Channel
     $channelApiUrl = ("https://graph.microsoft.com/beta/teams/" + $teamID + "/channels")
@@ -151,7 +162,7 @@ foreach ($sublocation in $sublocationsList) {
     Invoke-RestMethod -Headers @{Authorization = "Bearer $($Tokenresponse.access_token)" } -Uri $tabApiUrl -Body $tabBody -Method Post -ContentType 'application/json'
     #Get Wiki Tab
     $tabs = Invoke-RestMethod -Headers @{Authorization = "Bearer $($Tokenresponse.access_token)" } -Uri $tabApiUrl -Method GET -ContentType 'application/json'
-    $wikiID = ($tabs.value | ? { $_.name -eq "Wiki" }).id
+    $wikiID = ($tabs.value | Where-Object { $_.name -eq "Wiki" }).id
     #Delete Wiki Tab
     $wikiApiUrl = ("https://graph.microsoft.com/beta/teams/" + $teamID + "/channels/" + $newChannel.id + "/tabs/" + $wikiID)
     Invoke-RestMethod -Headers @{Authorization = "Bearer $($Tokenresponse.access_token)" } -Uri $wikiApiUrl -Method DELETE -ContentType 'application/json'
