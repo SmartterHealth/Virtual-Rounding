@@ -155,11 +155,11 @@ There will be two sign in prompts during the script. Sign in with administrator 
 
 ## Team/List/Tab Creation
 
-Depending on your setup, you may want one Team or multiple Teams for Doctors to use to navigate and join the Patient Room meetings.
+Depending on your setup, you may want one Team or multiple Teams for your healthcare providers to use to navigate and join the Patient Room meetings.
 
-We recommend a single Team with Channels for each location involved so that Doctors are able to join any room at any location during a Time of crisis. This is the method that will be covered and supported in this guide.
+We recommend a single Team with Channels for each location involved so that the providers are able to join any room at any location during a time of crisis. This is the method that will be covered and supported in this guide.
 
-If doctor&#39;s should only be able to join rooms at specific locations (hospitals/clinics), we recommend separate teams per location, or a single Team with _Private_ Channels for each location involved. This guide does not cover that method at this time however, and you will need to adapt to your needs. This will be added to the guide at a different time.
+If providers&#39;s should only be able to join rooms at specific locations (hospitals/clinics), we recommend separate teams per location, or a single Team with _Private_ Channels for each location involved. This guide does not cover that method at this time however, and you will need to adapt to your needs. This will be added to the guide at a different time.
 
 In SharePoint, we will be leveraging SharePoint lists to store and surface the meeting join links. This guide will cover creating multiple SharePoint lists, one for each location, and having them added as Tabs to the associated channel. Each list will also get a custom view applied.
 
@@ -177,7 +177,7 @@ In this repository is a PowerShell Script (CreateTeamsAndSPO.ps1) that:
 5a. Columns: Title (existing by default), RoomLocation, RoomSubLocation, MeetingLink, EventID(skip if provisioning manually).
 5b. View: (Create a new view)[https://support.office.com/en-us/article/Create-change-or-delete-a-view-of-a-list-or-library-27AE65B8-BC5B-4949-B29B-4EE87144A9C9] and then (add in the JSON)[https://support.microsoft.com/en-us/office/formatting-list-views-f737fb8b-afb7-45b9-b9b5-4505d4427dd1?ui=en-us&rs=en-us&ad=us] from SharePointViewFormatting.json
 6. Creates Channels and pins the SharePoint list as a Tab
-7. Removes Wiki Tabs
+7. Removes Wiki Tabs from the channels
 
 Before running this script, you will need the following:
 
@@ -261,18 +261,18 @@ Below are recommended settings to configure.  Should your organization have exis
 
 If Intune is not to be used to manage devices (or another MDM associated with Azure AD), network restrictions should be created as per below:
 1. Navigate to https://portal.azure.com/#blade/Microsoft_AAD_IAM/ConditionalAccessBlade/NamedNetworksV2
-2. For each public IP address your organization, input a new "Named Location", marking the location as a trusted location.  (Note, these locations are input in CIDR format if you need to input multiple IP ranges there are [many calculators available](https://www.bing.com/search?q=cidr+calculator) )
+2. For each public IP address your organization utilizes for traffic egress, input a new "Named Location", marking the location as a trusted location.  (Note, these locations are input in CIDR format if you need to input multiple IP ranges there are [many calculators available](https://www.bing.com/search?q=cidr+calculator) ).  If you want to input a single IP address, you can do so with just a /32 at the end of it to match CIDR formatting. 
 
     ![Trusted Ranged](/Documentation/Images/CAPolicy-TrustedLocations.png)
 
 Create a CA Policy to Ensure the Patient Room accounts only have access from trusted network locations (and a MDM protected device if Azure AD MDM integration or Intune is available)
 1. Navigate to https://portal.azure.com/#blade/Microsoft_AAD_IAM/ConditionalAccessBlade/Policies and click "+ New Policy". 
-2. Input a name for the policy, such as "Virtual Rounding Rooms - Trusted Grant". 
+2. Input a name for the policy, such as "[Block]Virtual Rounding Rooms". 
 3. Select "Users and Groups", and input "Select users and groups"... and "Users and groups"... Select the group you have added all of the room accounts to (and used to assign the licenses to).  Be careful on this screen, if this group is not properly applied; you could be locking out all accounts to all services. 
 
     ![CA Policy Groups](/Documentation/Images/CAPolicy-UsersAndGroups.png)
 
-4. Under "Cloud apps or actions", select "All cloud apps"
+4. Under "Cloud apps or actions", select "All cloud apps". Note, we normally don't recommend this settings, but since these accounts are highly specialized, and should never be used on any platform anywhere outside of the organization's network and/or trusted devices; we will make an exception this time. 
 5. Under "Condtions", select "Locations", and Select "Include... Any location" and "Exclude... All trusted locations".  If there are other trusted locations in your portal that the patient rooms should not be  accessed from; you may opt to choose "Selected locations" and pick specific locations to white-list. 
 
     ![Include All IPs](Documentation/Images/CAPolicy-IncludeAllLocations.png)   ![Exclude Trusted IPs](Documentation/Images/CAPolicy-ExcludeAllTrustedLocations.png)
