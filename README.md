@@ -176,7 +176,7 @@ Before running this script, you will need the following:
   - Sample file available (LocationList.csv)
 - A second CSV file with the desired Channel(s)/List(s)
   - Columns:
-    - SubLocationName
+    - LocationSubName
       - Sub Location Name. This must match the location names used for AccountSubLocation in _Patient Room Account Setup_. Ensure all Sub Location Names from that earlier script are represented.
     - LocationName
       - Location Name. This must match the location names used for AccountLocation in _Patient Room Account Setup_. Ensure all Location Names from that earlier script are represented.
