@@ -33,7 +33,9 @@ $sharepointBaseUrl = $configFile.TenantInfo.SPOBaseUrl
 $provisionFamilyMeetingsSetting = $configFile.BetaInfo.ProvisionFamilyMeetings
 
 #-------------------------Script Setup-------------------------#
-$credentials = Get-Credential
+if($null -ne $credentials) {
+    $credentials = Get-Credential
+}
 
 Import-Module AzureAD
 Connect-AzureAD -Credential $credentials
@@ -67,7 +69,15 @@ foreach ($location in $locationsList) {
     #Create Team with policies
     $teamName = $location.LocationName + " " + $teamNameSuffix 
     $teamShortName = $location.LocationName.replace(' ','')
-    New-Team -DisplayName $teamName -Visibility Private -Owner $groupOwner -AllowAddRemoveApps $false -AllowCreateUpdateChannels $false -AllowCreateUpdateRemoveConnectors $false -AllowCreateUpdateRemoveTabs $false -AllowDeleteChannels $false -MailNickName $teamShortName
+    #clear out the variable from previous runs/loops
+    $team = $null 
+    $team = Get-Team -DisplayName $teamName
+    if($null -eq $team)
+    {        
+        $team = New-Team -DisplayName $teamName -Visibility Private -Owner $groupOwner -AllowAddRemoveApps $false -AllowCreateUpdateChannels $false -AllowCreateUpdateRemoveConnectors $false -AllowCreateUpdateRemoveTabs $false -AllowDeleteChannels $false -MailNickName $teamShortName
+    }
+
+    $teamId= $team.ObjectID
     #Add members to team
     $groupID = (Get-AzureADGroup -SearchString $location.MembersGroupName).ObjectID
     $groupMembers = Get-AzureADGroupMember -ObjectId $groupID
@@ -84,7 +94,7 @@ foreach ($location in $locationsList) {
     Add-PnPField -Type User -InternalName "RoomAccount" -DisplayName "RoomAccount" -Group "VirtualRounding"
     Add-PnpField -Type String -InternalName "FamilyMeetingRecipients" -DisplayName "Family Meeting Emails" -Group "VirtualRounding"
     Add-PnpField -Type URL -InternalName "FamilyMeetingLink" -DisplayName "Family Meeting Link" -Group "VirtualRounding"
-    Add-PnPContentType -Name "VirtualRoundingRoom" -Group "VirtualRounding"
+    Add-PnPContentType -Name "VirtualRoundingRoom" -Group "VirtualRounding" | Out-Null #get around ISE bug
     Start-Sleep -Seconds 5
     $contentType = Get-PnPContentType -Identity "VirtualRoundingRoom"
     Add-PnPFieldToContentType -Field "RoomLocation" -ContentType $contentType
