@@ -1,0 +1,44 @@
+{
+    "ClientCredential":
+    {
+        "Id": "",
+        "Secret": ""
+    },
+    "LocationCsvPaths":
+    {
+        "Locations": "C:\\Scripts\\Locations.csv. Replace with Path of the first CSV file. (Columns expected: LocationName, MembersGroupName).  LOCATION NAMES SHOULD MATCH AccountLocations FROM CreateRooms SCRIPT",
+        "SubLocations": "C:\\Scripts\\Sublocations.csv Replace with path of the Subocation CSV file. (Columns expected: SubLocationName, LocationName)  SUBLOCATION NAMES SHOULD MATCH AccountSubLocations FROM CreateRooms SCRIPT",
+        "Rooms": "C:\\Scripts\\Rooms.csv  Replace with the path of the Rooms CSV file.  Columns expected: AccountName, AccountUPN, AccountPassword, AccountLocation, AccountSubLocation"
+    },
+    "TenantInfo":
+    {
+        "TenantName": "something.onmicrosoft.com",
+        "SPOBaseUrl": "https://something.sharepoint.com/",
+        "RoomsADGroup": "Rounding Patient Rooms",
+        "MFARequired": false,
+        "GlobalAdminUPN": "admin@contoso.com"
+    },
+    "ViewJson":
+    {
+        "SPViewJsonFilePath": "C:\\Scripts\\SharePointViewFormatting.json"
+    },
+    "GroupConfiguration": 
+    {
+        "RoundingTeamSuffix":"Virtual Rounding"
+    },
+    "TimeZoneInfo":
+    {
+        "UTCOffset": "-4",
+        "TimeZoneName": "Eastern Standard Time"
+    },
+    "TeamsInfo":
+    {
+        "meetingPolicyName": "Virtual Rounding Room",
+        "messagingPolicyName": "Virtual Rounding Room",
+        "liveEventPolicyName": "Virtual Rounding Room",
+        "appPermissionPolicyName": "Virtual Rounding Room",
+        "appSetupPolicyName": "Virtual Rounding Room",
+        "callingPolicyName": "Virtual Rounding Room",
+        "teamsPolicyName": "Virtual Rounding Room",
+    }
+}

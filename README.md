@@ -1,9 +1,19 @@
 # Virtual Rounding using Microsoft Teams
 
-_Version: 0.6
-Updated 3/27/2020_
+_Version: 1.1
+Updated 4/8/2020_
 
-For deployment assistance, questions or comments, plesae fill out [this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR6mlTNdIzWRKq7zcu5h9FqNUMVoxSU0yS0hCSVhKMkxRREZaVE1IRU8wVy4u). Someone from Microsoft will reach out as soon as possible.
+For deployment assistance, questions or comments, please fill out [this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR6mlTNdIzWRKq7zcu5h9FqNUMVoxSU0yS0hCSVhKMkxRREZaVE1IRU8wVy4u). Someone from Microsoft will reach out as soon as possible.
+
+## Changelog
+### Version 1.1
+Date: 4/8/2020
+* All scripts now have added delays after crucial steps to ensure provisioning of resources, and extra catches to ensure more time is given for provisioning when necessary.
+* All scripts no longer need direct modification for variables. A single JSON file is used for all variables, and scripts shouldn't need modifications unless you have desired customizations.
+* Bug identified causing meetings to end in the following situation: 
+    + Room sitting in meeting -> Provider Joins for a certain period of time -> Provider leaves meeting -> Meeting ends 30 minutes later if no other providers join (only one user in the meeting)
+    + A new part of the Virtual Rounding solution has been added to solve this bug. There is now a free meeting bot you can deploy to always be joined to the meeting and serve as a constant second meeting participant to ensure the 30 minute timer does not apply.
+    + Please note that there are new API permissions required in the Azure AD App registration to support this solution.
 
 ## Overview
 
@@ -28,7 +38,7 @@ Each patient room will have an associated Office 365 account, with only Microsof
 - Hide all apps except Calendar
 - Disable Meeting Features: Meet Now, Cloud Recording, Transcription, Screen Sharing, PowerPoint Sharing, Whiteboard, Shared Notes, Anonymous user admission, Meeting Chat
 
-Each patient room will have an ongoing Teams meeting running for a long period of time (months or longer), and that meeting will be reused for that room as patients flow in and out of rooms. A previous version of this guide said to create new meetings every 24 hours, but that has been found to not be necessary.
+Each patient room will have an ongoing Teams meeting running for a long period of time (months or longer), and that meeting will be reused for that room as patients flow in and out of rooms. As noted in the known limitations, there is a 24 hour timeout; Please see that section for guidance.
 
 Doctors will not be directly invited to any meetings, but instead have access to a Team or Teams with a list of meetings pinned as a tab (from SharePoint). Doctors will be able to join a Patient Room meeting via the Join URL hyperlink in the list.
 
@@ -41,14 +51,15 @@ Doctors will not be directly invited to any meetings, but instead have access to
 - If a patient taps/clicks on the doctor's name while in the meeting, they can see Azure AD profile information for that Doctor. There is no current workaround for this besides training and patient supervision. Some hospitals have used generic workstations with generic Teams logins to get around this for the doctors.
 - This solution is built with cloud only Azure AD Accounts in mind for the Patient Room accounts. Any variation from that will have to be coded manually.
 - This solution relies on familiarity with PowerShell, Azure AD Admin, Teams Admin, and Power Automate (formerly known as Microsoft Flow). and may require customization for your specific environment. Please fill out [this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR6mlTNdIzWRKq7zcu5h9FqNUMVoxSU0yS0hCSVhKMkxRREZaVE1IRU8wVy4u) to contact us if you need assistance.
+- A single participant cannot be joined to a meeting for more than 24 hours. The devices will need to rejoin the meetings at least once every 24 hours. To avoid service interruptions, consider training floor staff that is already in the room once daily to end and rejoin the meeting.
 
 ## Prerequisites
 
 - Access to a Global Administrator account (for Application Consent)
 - A service account with a Power Automate Premium license
-  - If not available, PowerShell can be used instead of Power Automate
-- Enough Office 365 Licenses for each Patient Room account (any License SKU that includes Microsoft Teams and Exchange Online [plan 1 or 2])
-- Optional: Intune licenses for management of Patient Room devices
+  - If not available, PowerShell can be used instead of Power Automate (this will require customization not available in this repository)
+- Enough Office 365 Licenses for each Patient Room account (any License SKU that includes Microsoft Teams and Exchange Online [plan 1 or 2]; If needed, please contact your Microsoft Account team for the E1 trial available during COVID-19)
+- Optional: EM+S licenses for management of Patient Room devices and identities
 
 # Configuration
 
@@ -74,7 +85,7 @@ Create Policies in the Microsoft Teams Admin Center matching the below policies.
 ### Calling Policy
 ![Calling Policy](/Documentation/Images/CallingPolicy.png)
 
-## Application Registration {screenshots to be added}
+## Application Registration
 
 For various steps in this process we will need to call the Microsoft Graph. To do that, an app registration is required in Azure AD. This will require a Global Administrator account.
 
@@ -86,7 +97,7 @@ For various steps in this process we will need to call the Microsoft Graph. To d
 6. Click &quot;+ Add a permission&quot;.
 7. Select &quot;Microsoft Graph&quot;.
 8. Select Application permissions.
-9. Add the following permissions: Calendars.ReadWrite, Group.ReadWrite.All, OnlineMeetings.ReadWrite.All.
+9. Add the following permissions: Calendars.ReadWrite, Calls.InitiateGroupCall.All, Calls.JoinGroupCall.All, Group.ReadWrite.All, OnlineMeetings.ReadWrite.All
 10. Click &quot;Grant admin consent for …&quot;
 11. From the left menu, click &quot;Certificates &amp; secrets&quot;.
 12. Under &quot;Client secrets&quot;, click &quot;+ New client secret&quot;.
@@ -129,9 +140,11 @@ Before running this script, you will need the following:
 
 ### Script
 
-Once the above is ready, you can run CreateRooms.ps1. As with all open source scripts, please test and review before running in your production environment. Ensure you fill in the appropriate variables before running the script.
+All variables and supporting files will need to be specified in the RunningConfig.json file you can find in this repository. The only varialbe the script needs configured manually is the location of that JSON configuration file.
 
-There will be two sign in prompts during the script. Sign in with administrator credentials that are able to create Azure AD accounts and assign Teams policies.
+Once the above is ready, you can run CreateRooms.ps1. As with all open source scripts, please test and review before running in your production environment.
+
+When prompted, sign in with administrator credentials that are able to create Azure AD accounts and assign Teams policies.
 
 ## Team/List/Tab Creation
 
@@ -149,13 +162,13 @@ In this repository is a PowerShell Script (CreateTeamsAndSPO.ps1) that:
 
 1. Creates the Team
 2. Sets Team Settings:
-  1. Visibility: Private
-  2. Disables member capabilities: Add/Remove Apps, Create/Update/Remove Channels, Create/Update/Remove Connectors, Create/Update/Remove Tabs
+  i. Visibility: Private
+  ii. Disables member capabilities: Add/Remove Apps, Create/Update/Remove Channels, Create/Update/Remove Connectors, Create/Update/Remove Tabs
 3. Adds members to Team
 4. Creates SharePoint Lists in the associated SharePoint site
 5. Adds columns and custom view to lists
-5a. Columns: Title (exisitng by default), RoomLocation, RoomSubLocation, MeetingLink, EventID(skip if provisioning manually).
-5b. View: (Create a new view)[https://support.office.com/en-us/article/Create-change-or-delete-a-view-of-a-list-or-library-27AE65B8-BC5B-4949-B29B-4EE87144A9C9] and then (add in the JSON)[https://support.microsoft.com/en-us/office/formatting-list-views-f737fb8b-afb7-45b9-b9b5-4505d4427dd1?ui=en-us&rs=en-us&ad=us] from SharePointViewFormatting.json
+   i. Columns: Title (exists by default), RoomLocation, RoomSubLocation, MeetingLink, EventID(skip if provisioning manually).
+   ii. View: (Create a new view)[https://support.office.com/en-us/article/Create-change-or-delete-a-view-of-a-list-or-library-27AE65B8-BC5B-4949-B29B-4EE87144A9C9] and then (add in the JSON)[https://support.microsoft.com/en-us/office/formatting-list-views-f737fb8b-afb7-45b9-b9b5-4505d4427dd1?ui=en-us&rs=en-us&ad=us] from SharePointViewFormatting.json
 6. Creates Channels and pins the SharePoint list as a Tab
 7. Removes Wiki Tabs
 
@@ -185,7 +198,9 @@ Before running this script, you will need the following:
 - Microsoft Teams PowerShell: [https://www.powershellgallery.com/packages/MicrosoftTeams/](https://www.powershellgallery.com/packages/MicrosoftTeams/)
 - SharePoint Online PnP PowerShell: [https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets?view=sharepoint-ps](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets?view=sharepoint-ps)
 
-Once the above is ready, you can run CreateTeamsAndSPO.ps1. As with all open source scripts, please test and review before running in your production environment. Ensure you fill in the appropriate variables before running the script.
+All variables and supporting files will need to be specified in the RunningConfig.json file you can find in this repository. The only varialbe the script needs configured manually is the location of that JSON configuration file.
+
+Once the above is ready, you can run CreateTeamsAndSPO.ps1. As with all open source scripts, please test and review before running in your production environment.
 
 ## Patient Room Meeting Setup
 
@@ -206,9 +221,72 @@ Instructions:
 2. Click on &quot;My flows&quot;.
 3. Click &quot;Import&quot;.
 4. Upload SetupMeetingsFlow.zip
-5. Update all variables
+5. Update all variables, the SharePoint Site base URL in the final step of the flow, and the Group ID.
 
-Once it's been at least 3 hours since you've created the room accounts, you can run the Flow to create all the meeting links. Ideally, wait 24 hours. This is to ensure the Teams Policies properly apply to the room accounts before a meeting is created.
+Once it's been at least 3 hours since you've created the room accounts, you can run the Flow to create all the meeting links. Ideally, wait at least 24 hours. This is to ensure the Teams Policies properly apply to the room accounts before a meeting is created.
+
+## Meeting Bot
+This section covering the meeting bot is _draft_, and we recommend reaching out to your Microsoft Partner or account team for assistance with this. We will finalize this section over the next 48 hours as we continue to build.
+
+A meeting bot can be used to get around the 30 minute timeout issue mentioned in the changelog at the top of this page. The meeting bot will sit in each meeting and serve as a second meeting participant to avoid the 30 minute timeout (which starts as soon as a meeting is down to one participant). The bot is subject to the same 30 minute and 24 hour timeouts that standard accounts have. Therefore, it is crucial that patient device not hang up the meeting, as that would leave the bot as the lone participant in the meeting, starting the 30 minute timer.
+The meeting bot is joined into a meeting using a Graph API call, which can be automated using Power Automate or PowerShell to ensure it rejoins every 24 hours, and potentially sooner depending on your needs. The below will outline the basics of the bot setup process. Ensure you have updated your Azure AD App Registration with the newly added API permissions before starting.
+
+### Bot Configuration
+1. Go to https://dev.botframework.com/bots/new
+2. Fill out all the pertinent information, ensuring to use the app ID from your Azure AD App registration.
+3. Add Microsoft Teams as a channel
+4. Select the calling tab, and select the checkbox to _Enable calling_. For your webhook, enter any https URL. We will never be calling this bot, so this field won't be relevant, but it is required to enter something.
+5. In Microsoft Teams, select Apps from the left pane and then select App Studio.
+6. From the top pane, click Manifest editor and then Create a new app from the left pane.
+7. In the App details tab, provide the basic information.
+8. Navigate to the Capabilities section, and select the Bots tab. Then select Set Up in the right pane.
+9. Fill in the desired bot name
+10. Select the Select from one of my existing bots option, and find your bot from above in the dropdown.
+11. Check all options under Calling Bot and Scope and press Save
+12. Use app studio to deploy the bot to your tenant.
+
+### Adding the bot to a Teams meeting
+A Graph API call using your Azure AD App Registration (Client ID, Client Secret, Tenant ID) will allow us to add the bot to an existing scheduled meeting.
+To get the items that the API call will need, get your meeting join link, which should look like this:
+`https://teams.microsoft.com/l/meetup-join/19%3ameeting_YWNiYzA2NTctOGIzMy00MzRhLTkyNmUtZGY4NzM2YTFhNmEz%40thread.v2/0?context=%7b%22Tid%22%3a%226be58f7f-c45d-43f9-89e4-b97ec2a06d8e%22%2c%22Oid%22%3a%22ac2ea2ab-9845-4308-a99c-8fdc6548ceac%22%7d`
+Decoding that URI, we get this:
+`https://teams.microsoft.com/l/meetup-join/19:meeting_YWNiYzA2NTctOGIzMy00MzRhLTkyNmUtZGY4NzM2YTFhNmEz@thread.v2/0?context={"Tid":"6be58f7f-c45d-43f9-89e4-b97ec2a06d8e","Oid":"ac2ea2ab-9845-4308-a99c-8fdc6548ceac"}`
+The two items we need from the decoded uri are:
+threadId: `19:meeting_YWNiYzA2NTctOGIzMy00MzRhLTkyNmUtZGY4NzM2YTFhNmEz@thread.v2`
+organizerId `ac2ea2ab-9845-4308-a99c-8fdc6548ceac`
+
+Using that information, call the graph API using the following
+
+Call: `POST https://graph.microsoft.com/beta/communications/calls`
+Body:
+```json
+{
+  "@odata.type": "#microsoft.graph.call",
+  "callbackUri": "INSERT URI FROM STEP 4 ABOVE",
+  "tenantId": "INSERT TENANTID HERE",
+  "meetingInfo": {
+    "@odata.type": "#microsoft.graph.organizerMeetingInfo",
+    "organizer": {
+      "@odata.type": "#microsoft.graph.identitySet",
+      "user": {
+        "@odata.type": "#microsoft.graph.identity",
+        "id": "INSERT ORGANIZERID HERE",
+        "tenantId": "INSERT TENANTID HERE"
+      }
+    },
+    "allowConversationWithoutHost": true
+   },
+  "mediaConfig": {
+    "@odata.type": "#microsoft.graph.serviceHostedMediaConfig"
+    },
+   "chatInfo": {
+    "@odata.type": "#microsoft.graph.chatInfo",
+    "threadId": "INSERT THREADID HERE",
+    "messageId": "0"
+  }
+}
+```
+We will have modified Flows (for PowerAutomate) published in the next 48 hours to assist with automating this.
 
 ## Meeting Updating
 
@@ -224,5 +302,3 @@ We strongly recommend managing the devices with Intune MDM and enabling kiosk mo
 ## Conditional Access Policies
 
 We strongly recommend applying a conditional access policy to the Azure AD Group used in _Patient Room Account Setup_ (contains all Patient Room accounts). This policy should limit sign ins to either Intune Managed Devices or specific trusted IPs. This is to limit the risk of the account becoming compromised and a third party logging into an ongoing patient meeting.
-
-(instructions to be added)
