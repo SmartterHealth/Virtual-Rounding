@@ -25,28 +25,39 @@ Doesn't scale well with  large quantities of meetings to "keep open", unsure of 
 
 ## Option B – Leverage Calls Rather than Meetings
 
-Update the "Join" meeting column, rather than pointing to the individual meeting to a "Call" link (which you can create by appending the Room email account to the static string: https://teams.microsoft.com/l/call/0/0?users=, for example https://teams.microsoft.com/l/call/0/0?users=NorthTower6thFloorRoom1@M365x107527.onmicrosoft.com).
+Update the "Join" meeting column, rather than pointing to the individual meeting to a "Call" link (which you can create by appending the Room email account to the static string: `https://teams.microsoft.com/l/call/0/0?users=`
+, for example `https://teams.microsoft.com/l/call/0/0?users=NorthTower6thFloorRoom1@M365x107527.onmicrosoft.com`.
 When a provider is ready to conduct a virtual meeting with a patient, he will click this link and the patient will need to "Answer" the call to initiate care.  
-        If you are using iOS devices, you can look into the accessibility feature, "Auto Answer" to initiate the voice call automatically, requiring the patient to only click the "Camera" icon the meeting to enable video.  
+    If you are using iOS devices, you can look into the accessibility feature, "Auto Answer" to initiate the voice call automatically, requiring the patient to only click the "Camera" icon the meeting to enable video.  
+    ![Auto-Answer for iOS](/Documentation/Images/Workarounds-AutoAnswer.png)
 To ensure the patient is ready to join, you can rely on your existing in-room audio functions to "page" the patient to be on the lookout for the incoming call.
 You may want to consider the in-room providers updating the Teams client in each room (or configuring via the provisioning process) a longer period than the default 20-seconds a call will ring before being marked as "Unanswered"
+
+![Calling Setting for Rings](/Documentation/Images/Workarounds-CallingSettings.png)
 
 ### Benefits of Calls
 
 Patients answer the call, allowing video only when they are prepared for it
-Drawbacks
-Patients must touch the device to enable camera (and answer the call on non-iOS devices).  A mouse/keyboard, or Bluetooth speakerphone could be used to not require direct device interaction, but will not fully remove this
-Until KiZAN/Microsoft can provide updated provisioning scripts; the "Join" link will need to be manually populated for each Room
+
+### Drawbacks of Calls
+
+Patients must touch the device to enable camera (and answer the call on non-iOS devices).  A mouse/keyboard, or Bluetooth speakerphone could be used to not require direct device interaction, but will not fully remove this.
+Until KiZAN/Microsoft can provide updated provisioning scripts; the "Join" link will need to be manually populated for each Room.
 
 ## Option C – "Ask to Join" Meeting
 
-Should a patient room be disconnected from a meeting, the care provider can use the "Ask to Join" button on their device to "ring" the patient's device, asking them to rejoin the meeting:
+Should a patient room be disconnected from a meeting, the care provider can use the "Ask to Join" button on their device to "ring" the patient's device, asking them to rejoin the meeting
+
+![Ask to Join](Documentation/Images/Workarounds-AskToJoin.png)
 
 ### Benefits of "Ask to Join"
 
-Patients answer the call, allowing video only when they are prepared for it
-No need to reconfigure all meeting links provisioned in the system
+Patients answer the call, allowing video only when they are prepared for it.
+
+No need to reconfigure all meeting links provisioned in the system.
 
 ### Drawbacks of "Ask to Join"
 
-Patients must touch the device to enable camera (and answer the call on non-iOS devices).  A mouse/keyboard, or Bluetooth speakerphone could be used to not require direct device interaction, but will not fully remove this
+Patients must touch the device to enable camera (and answer the call on non-iOS devices).
+
+A mouse/keyboard, or Bluetooth speakerphone could be used to not require direct device interaction, but will not fully remove this.
