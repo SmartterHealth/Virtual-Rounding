@@ -23,6 +23,7 @@ Ideal solution if you only have a few dozen rooms/devices you would need to keep
 
 Extensive IT intervention every 24 hours to re-arm multiple meetings would be required.
 Doesn't scale well with  large quantities of meetings to "keep open", unsure of how long these Chrome sessions could stay connected to a meeting (or how many meetings a single device could support).
+The patient screen will show the "third account" to the side of the provider's video stream. Patients could "pin" the provider to the primary view, but that would require manual device interaction. 
 
 ## Option B – Leverage Calls Rather than Meetings
 
