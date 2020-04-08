@@ -163,6 +163,7 @@ Before running this script, you will need the following:
 
 - Azure AD Security Groups
   - You will specify security groups to copy membership from to the individual Teams in the below CSV (_MembersGroupName_).
+  - These groups should contain the provider's accounts that you want to be added to the Teams as members. Do not include any of the room accounts you created earlier. They should _not_ be members of the Team. 
 - The App ID and Client Secret from the Azure AD App Registration (earlier step in this guide).
 - A CSV file with the desired Team(s) information
   - Columns:
@@ -171,10 +172,11 @@ Before running this script, you will need the following:
       - You will be able to add a suffix to this to make a more readable Team name by using a variable in the script
     - MembersGroupName
       - Name of an Azure AD Group (or synced AD Group) containing the members to be added to the Team.
+      - These groups should contain the provider's accounts that you want to be added to the Teams as members. Do not include any of the room accounts you created earlier. They should _not_ be members of the Team. 
   - Sample file available (LocationList.csv)
 - A second CSV file with the desired Channel(s)/List(s)
   - Columns:
-    - SubLocationName
+    - LocationSubName
       - Sub Location Name. This must match the location names used for AccountSubLocation in _Patient Room Account Setup_. Ensure all Sub Location Names from that earlier script are represented.
     - LocationName
       - Location Name. This must match the location names used for AccountLocation in _Patient Room Account Setup_. Ensure all Location Names from that earlier script are represented.
