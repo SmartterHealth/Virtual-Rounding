@@ -257,11 +257,10 @@ Decoding that URI, we get this:
 
 The two items we need from the decoded uri are:
 
-threadId: `19:meeting_YWNiYzA2NTctOGIzMy00MzRhLTkyNmUtZGY4NzM2YTFhNmEz@thread.v2`
+- threadId: `19:meeting_YWNiYzA2NTctOGIzMy00MzRhLTkyNmUtZGY4NzM2YTFhNmEz@thread.v2`
+- organizerId `ac2ea2ab-9845-4308-a99c-8fdc6548ceac`
 
-organizerId `ac2ea2ab-9845-4308-a99c-8fdc6548ceac`
-
-Using that information, call the graph API using the following
+Using that information, call the graph API using the below to add the bot to the meeting:
 
 Call: `POST https://graph.microsoft.com/beta/communications/calls`
 
