@@ -1,6 +1,6 @@
 # Virtual Rounds Breaking Change in Microsoft Teams Meeting Experience
 
-As of April 6th or 7th, 2020, there appears to be a newly noted client behavior ( in which Patients' Rooms are being disconnected from meetings approximately 30 minutes after a care provider has disconnected from a room meeting.
+As of April 6th, 2020, there appears to be a newly noted client behavior, in which Patients' Rooms are being disconnected from meetings approximately 30 minutes after a care provider has disconnected from a room meeting.
 
 Below are some initial workarounds KiZAN has been able to develop for the "meeting disconnect" scenario. Hopefully the below are temporary workarounds, as none are perfect, but we wanted to share what we've put together so far. Each solution is "stand alone", with it's own benefits and drawbacks; you would not need to implement each of these, however testing each to determine which might be the best solution for your providers and patients is highly recommended. KiZAN is here to support you however we can in getting this resolved ASAP; and Microsoft is working diligently to see if they are able to roll-back the change that occurred it as well as to evaluate additional workarounds.
 
