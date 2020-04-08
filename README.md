@@ -3,7 +3,18 @@
 _Version: 1.1
 Updated 4/8/2020_
 
-Note: There may be a breaking change with the underlying Microsoft Teams Calls/Meeting platform that will cause patient room devices to disconnect.  For more information, please view a [separate page on this topic](/MeetingsBreakingChanges.md).
+## Changelog
+
+### Version 1.1
+
+Date: 4/8/2020
+
+- All scripts now have added delays after crucial steps to ensure provisioning of resources, and extra catches to ensure more time is given for provisioning when necessary.
+- All scripts no longer need direct modification for variables. A single JSON file is used for all variables, and scripts shouldn't need modifications unless you have desired customizations.
+- Bug identified causing meetings to end in the following situation:
+  - Room sitting in meeting -> Provider Joins for a certain period of time -> Provider leaves meeting -> Meeting ends 30 minutes later if no other providers join (only one user in the meeting)
+  - A new part of the Virtual Rounding solution has been added to solve this bug. There is now a free meeting bot you can deploy to always be joined to the meeting and serve as a constant second meeting participant to ensure the 30 minute timer does not apply.
+  - Please note that there are new API permissions required in the Azure AD App registration to support this solution.
 
 For deployment assistance, questions or comments, please fill out [this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR6mlTNdIzWRKq7zcu5h9FqNUMVoxSU0yS0hCSVhKMkxRREZaVE1IRU8wVy4u). Someone from Microsoft will reach out as soon as possible.
 
@@ -13,7 +24,7 @@ This is the Virtual Rounding solution referenced in the Microsoft Health &amp; L
 
 ## Disclaimer
 
-This solution is a sample and may be used with Microsoft Teams for dissemination of reference information only. This solution is not intended or made available for use as a medical device, clinical support, diagnostic tool, or other technology intended to be used in the diagnosis, cure, mitigation, treatment, or prevention of disease or other conditions, and no license or right is granted by Microsoft to use this solution for such purposes. This solution is not designed or intended to be a substitute for professional medical advice, diagnosis, treatment, or judgement and should not be used as such. Customer bears the sole risk and responsibility for any use. Microsoft does not warrant that the solution or any materials provided in connection therewith will be sufficient for any medical purposes or meet the health or medical requirements of any person._
+_This solution is a sample and may be used with Microsoft Teams for dissemination of reference information only. This solution is not intended or made available for use as a medical device, clinical support, diagnostic tool, or other technology intended to be used in the diagnosis, cure, mitigation, treatment, or prevention of disease or other conditions, and no license or right is granted by Microsoft to use this solution for such purposes. This solution is not designed or intended to be a substitute for professional medical advice, diagnosis, treatment, or judgement and should not be used as such. Customer bears the sole risk and responsibility for any use. Microsoft does not warrant that the solution or any materials provided in connection therewith will be sufficient for any medical purposes or meet the health or medical requirements of any person._
 
 ## Solution Design
 

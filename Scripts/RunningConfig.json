@@ -1,0 +1,49 @@
+{
+    "BetaInfo":
+    {
+        "ProvisionFamilyMeetings": "true"
+    },
+    "ClientCredential":
+    {
+        "Id": "",
+        "Secret": ""
+    },
+    "LocationCsvPaths":
+    {
+        "Locations": "C:\\Users\\justink\\GitHub\\Virtual-Rounding\\Sample Files\\LocationList.csv",
+        "SubLocations": "C:\\Users\\justink\\GitHub\\Virtual-Rounding\\Sample Files\\Sublocations.csv Replace with path of the Subocation CSV file. (Columns expected: SubLocationName, LocationName)  SUBLOCATION NAMES SHOULD MATCH AccountSubLocations FROM CreateRooms SCRIPT",
+        "Rooms": "C:\\Users\\justink\\GitHub\\Virtual-Rounding\\Sample Files\\Rooms.csv  Replace with the path of the Rooms CSV file.  Columns expected: AccountName, AccountUPN, AccountPassword, AccountLocation, AccountSubLocation"
+    },
+    "TenantInfo":
+    {
+        "TenantName": "something.onmicrosoft.com",
+        "SPOBaseUrl": "https://something.sharepoint.com/",
+        "SPOUrl": "https://someth9ing.sharepoint.com/sites/NorthTower",
+        "RoomsADGroup": "Rounding Patient Rooms",
+        "MeetingSchedulingUser": "admin@something.onmicrosoft.com"
+    },
+    "ViewJson":
+    {
+        "SPViewJsonFilePath": "C:\\Scripts\\SharePointViewFormatting.json"
+    },
+    "GroupConfiguration": 
+    {
+        "RoundingTeamSuffix":"Virtual Rounding"
+    },
+    "TimeZoneInfo":
+    {
+        "UTCOffset": "-4",
+        "TimeZoneName": "Eastern Standard Time"
+    },
+    "TeamsInfo":
+    {
+        "DaysOutToSchedule": "30",
+        "meetingPolicyName": "Virtual Rounding Room",
+        "messagingPolicyName": "Virtual Rounding Room",
+        "liveEventPolicyName": "Virtual Rounding Room",
+        "appPermissionPolicyName": "Virtual Rounding Room",
+        "appSetupPolicyName": "Virtual Rounding Room",
+        "callingPolicyName": "Virtual Rounding Room",
+        "teamsPolicyName": "Virtual Rounding Room"
+    }
+}
