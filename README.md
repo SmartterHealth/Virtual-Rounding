@@ -1,9 +1,11 @@
 # Virtual Rounding using Microsoft Teams
 
-_Version: 0.7
-Updated 4/2/2020_
+_Version: 0.8
+Updated 4/7/2020_
 
-For deployment assistance, questions or comments, plesae fill out [this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR6mlTNdIzWRKq7zcu5h9FqNUMVoxSU0yS0hCSVhKMkxRREZaVE1IRU8wVy4u). Someone from Microsoft will reach out as soon as possible.
+Note: There may be a breaking change with the underlying Microsoft Teams Calls/Meeting platform that will cause patient room devices to disconnect.  For more information, please view a [separate page on this topic](/MeetingsBreakingChanges.md).
+
+For deployment assistance, questions or comments, please fill out [this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR6mlTNdIzWRKq7zcu5h9FqNUMVoxSU0yS0hCSVhKMkxRREZaVE1IRU8wVy4u). Someone from Microsoft will reach out as soon as possible.
 
 ## Overview
 
@@ -11,59 +13,59 @@ This is the Virtual Rounding solution referenced in the Microsoft Health &amp; L
 
 ## Disclaimer
 
-_This solution is a sample and may be used with Microsoft Teams for dissemination of reference information only. This solution is not intended or made available for use as a medical device, clinical support, diagnostic tool, or other technology intended to be used in the diagnosis, cure, mitigation, treatment, or prevention of disease or other conditions, and no license or right is granted by Microsoft to use this solution for such purposes. This solution is not designed or intended to be a substitute for professional medical advice, diagnosis, treatment, or judgement and should not be used as such. Customer bears the sole risk and responsibility for any use. Microsoft does not warrant that the solution or any materials provided in connection therewith will be sufficient for any medical purposes or meet the health or medical requirements of any person._
-
-## Solution Design
-
-A device will be deployed in each patient room needed. These will be referred to as &quot;patient rooms&quot; in this documentation. That device will be locked down in Kiosk mode to the Microsoft Teams application.
-
-Each patient room will have an associated Office 365 account, with only Microsoft Teams and Exchange Online licensing applied. Custom Teams Policies will be applied to the accounts to limit the capabilities within the Teams application &amp; meetings, including:
-
-- Disable Chat
-- Disable Calling
-- Disable Organization browsing
-- Disable Meeting &amp; Live Event creation
-- Disable Discovery of Private Teams
-- Disable Installation/Adding Apps
+    This solution is a sample and may be used with Microsoft Teams for dissemination of reference information only. This solution is not intended or made available for use as a medical device, clinical support, diagnostic tool, or other technology intended to be used in the diagnosis, cure, mitigation, treatment, or prevention of disease or other conditions, and no license or right is granted by Microsoft to use this solution for such purposes. This solution is not designed or intended to be a substitute for professional medical advice, diagnosis, treatment, or judgement and should not be used as such. Customer bears the sole risk and responsibility for any use. Microsoft does not warrant that the solution or any materials provided in connection therewith will be sufficient for any medical purposes or meet the health or medical requirements of any person._
+    
+    # Solution Design
+    
+     device will be deployed in each patient room needed. These will be referred to as &quot;patient rooms&quot; in this documentation. That device will be locked down in Kiosk mode to the Microsoft Teams application.
+    
+    ach patient room will have an associated Office 365 account, with only Microsoft Teams and Exchange Online licensing applied. Custom Teams Policies will be applied to the accounts to limit the capabilities within the Teams application &amp; meetings, including:
+    
+     Disable Chat
+     Disable Calling
+     Disable Organization browsing
+     Disable Meeting &amp; Live Event creation
+     Disable Discovery of Private Teams
+     Disable Installation/Adding Apps
 - Hide all apps except Calendar
 - Disable Meeting Features: Meet Now, Cloud Recording, Transcription, Screen Sharing, PowerPoint Sharing, Whiteboard, Shared Notes, Anonymous user admission, Meeting Chat
-
-Each patient room will have an ongoing Teams meeting running for a long period of time (months or longer), and that meeting will be reused for that room as patients flow in and out of rooms. A previous version of this guide said to create new meetings every 24 hours, but that has been found to not be necessary.
-
-Doctors will not be directly invited to any meetings, but instead have access to a Team or Teams with a list of meetings pinned as a tab (from SharePoint). Doctors will be able to join a Patient Room meeting via the Join URL hyperlink in the list.
-
-## Known Limitations &amp; Warnings
-
-- Patient Room accounts will be able to browse and join public Teams. Limit the presence of those in your directory or deploy Information Barriers to prevent this.
-- Patient Room accounts can technically create Teams if this is not already restricted. Consider implementing restrictions to Team creation to these accounts to limit this ability if that is a concern.
-- While Patients Room accounts are prevented from exposing PHI during meetings (no chat, whiteboard, or shared notes access), Doctors do not have those same limitations (unless you choose to apply custom meeting policies to Doctors as well). Ensure Doctors have proper training or documentation to _not_ use those features of put PHI in them. Any content posted in those features will be visible to the next patient in the room.
-- If a patient goes to the show participants list, they are technically able to invite other users from your directory. There is no current workaround for this besides training and patient supervision.
-- If a patient taps/clicks on the doctor's name while in the meeting, they can see Azure AD profile information for that Doctor. There is no current workaround for this besides training and patient supervision. Some hospitals have used generic workstations with generic Teams logins to get around this for the doctors.
-- This solution is built with cloud only Azure AD Accounts in mind for the Patient Room accounts. Any variation from that will have to be coded manually.
-- This solution relies on familiarity with PowerShell, Azure AD Admin, Teams Admin, and Power Automate (formerly known as Microsoft Flow). and may require customization for your specific environment. Please fill out [this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR6mlTNdIzWRKq7zcu5h9FqNUMVoxSU0yS0hCSVhKMkxRREZaVE1IRU8wVy4u) to contact us if you need assistance.
-
-## Prerequisites
-
-- Access to a Global Administrator account (for Application Consent)
-- A service account with a Power Automate Premium license
-  - If not available, PowerShell can be used instead of Power Automate
-- Enough Office 365 Licenses for each Patient Room account (any License SKU that includes Microsoft Teams and Exchange Online [plan 1 or 2])
-- Optional: Intune licenses for management of Patient Room devices
-
-If you wish to execute the automated portions of this provisioning, you will need the following PowerShell modules/extensions installed in a location your Admin Account is able to log into
-- [Azure Active Directory PowerShell for Graph](https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0)
-- [Skype for Business Online PowerShell](https://docs.microsoft.com/en-us/office365/enterprise/powershell/manage-skype-for-business-online-with-office-365-powershell)
-- [SharePoint Online PnP PowerShell](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets?view=sharepoint-ps)
-- [Microsoft Teams PowerShell](https://www.powershellgallery.com/packages/MicrosoftTeams/)
-
- 
-# Configuration
-
-All configuration steps below assume that you would like to set this up at scale with a large amount of accounts. If you would like to test out the solution or POC with a smaller amount of user accounts, no scripting or Power Automate is needed. Simply follow along but skip running scripts/flows and instead manually complete the same steps that are listed for each script/flow.
-
-## Create Teams Policies
-
-Create Policies in the Microsoft Teams Admin Center matching the below policies. The screenshots below are recommended configuration, but you should configure to your organization's policy/needs.  As you create each policy, note it's name inside of the Running Config JSON template file.  
+    
+    ach patient room will have an ongoing Teams meeting running for a long period of time (months or longer), and that meeting will be reused for that room as patients flow in and out of rooms. A previous version of this guide said to create new meetings every 24 hours, but that has been found to not be necessary.
+    
+    octors will not be directly invited to any meetings, but instead have access to a Team or Teams with a list of meetings pinned as a tab (from SharePoint). Doctors will be able to join a Patient Room meeting via the Join URL hyperlink in the list.
+    
+    # Known Limitations &amp; Warnings
+    
+     Patient Room accounts will be able to browse and join public Teams. Limit the presence of those in your directory or deploy Information Barriers to prevent this.
+     Patient Room accounts can technically create Teams if this is not already restricted. Consider implementing restrictions to Team creation to these accounts to limit this ability if that is a concern.
+     While Patients Room accounts are prevented from exposing PHI during meetings (no chat, whiteboard, or shared notes access), Doctors do not have those same limitations (unless you choose to apply custom meeting policies to Doctors as well). Ensure Doctors have proper training or documentation to _not_ use those features of put PHI in them. Any content posted in those features will be visible to the next patient in the room.
+     If a patient goes to the show participants list, they are technically able to invite other users from your directory. There is no current workaround for this besides training and patient supervision.
+     If a patient taps/clicks on the doctor's name while in the meeting, they can see Azure AD profile information for that Doctor. There is no current workaround for this besides training and patient supervision. Some hospitals have used generic workstations with generic Teams logins to get around this for the doctors.
+     This solution is built with cloud only Azure AD Accounts in mind for the Patient Room accounts. Any variation from that will have to be coded manually.
+     This solution relies on familiarity with PowerShell, Azure AD Admin, Teams Admin, and Power Automate (formerly known as Microsoft Flow). and may require customization for your specific environment. Please fill out [this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR6mlTNdIzWRKq7zcu5h9FqNUMVoxSU0yS0hCSVhKMkxRREZaVE1IRU8wVy4u) to contact us if you need assistance.
+    
+    # Prerequisites
+    
+     Access to a Global Administrator account (for Application Consent)
+     A service account with a Power Automate Premium license
+     - If not available, PowerShell can be used instead of Power Automate
+     Enough Office 365 Licenses for each Patient Room account (any License SKU that includes Microsoft Teams and Exchange Online [plan 1 or 2])
+     Optional: Intune licenses for management of Patient Room devices
+    
+    f you wish to execute the automated portions of this provisioning, you will need the following PowerShell modules/extensions installed in a location your Admin Account is able to log into
+     [Azure Active Directory PowerShell for Graph](https://docs.microsoft.com/powershell/azure/active-directory/install-adv2?view=azureadps-2.0)
+     [Skype for Business Online PowerShell](https://docs.microsoft.com/office365/enterprise/powershell/manage-skype-for-business-online-with-office-365-powershell)
+     [SharePoint Online PnP PowerShell](https://docs.microsoft.com/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets?view=sharepoint-ps)
+     [Microsoft Teams PowerShell](https://www.powershellgallery.com/packages/MicrosoftTeams/)
+    
+    
+     Configuration
+    
+    ll configuration steps below assume that you would like to set this up at scale with a large amount of accounts. If you would like to test out the solution or POC with a smaller amount of user accounts, no scripting or Power Automate is needed. Simply follow along but skip running scripts/flows and instead manually complete the same steps that are listed for each script/flow.
+    
+    # Create Teams Policies
+    
+    Create Policies in the Microsoft Teams Admin Center matching the below policies. The screenshots below are recommended configuration, but you should configure to your organization's policy/needs.  As you create each policy, note it's name inside of the Running Config JSON template file.  
 
 ### Teams Policy
 ![Teams Policy](/Documentation/Images/TeamsPolicy.png)
@@ -100,19 +102,16 @@ For various steps in this process we will need to call the Microsoft Graph. To d
 6. Click &quot;+ Add a permission&quot;.
 7. Select &quot;Microsoft Graph&quot;.
 8. Select Application permissions.
-   
    ![Application Registration App Permissions](/Documentation/Images/AADAppRegistration-GraphAppPerm.png)
-
-9.  Add the following permissions: Calendars.ReadWrite, Group.ReadWrite.All, OnlineMeetings.ReadWrite.All.  Click &quot;Add permissions&quot;.
+9. Add the following permissions: Calendars.ReadWrite, Group.ReadWrite.All, OnlineMeetings.ReadWrite.All.  Click &quot;Add permissions&quot;.
 10. Your API Permissions should look like the below now.
-    
     ![Application Permissions Pre Admin Consent](/Documentation/Images/AADAppRegistration-PermissionsPreConAdmin.png)
 
 11. Click &quot;Grant admin consent for …&quot;.  Click &quot;Yes&quot; to grant the application global consent within Contoso. 
-12. From the left menu, click &quot;Certificates &amp; secrets&quot;.
+12. From the left m$$enu, click &quot;Certificates &amp; secrets&quot;.
 13. Under &quot;Client secrets&quot;, click &quot;+ New client secret&quot;.
 14. Provide a description and select an expiration time for the secret and click &quot;Add&quot;.
-15. Place the generated Secret in the Config JSON file under ClientCredential... Secret You must grab this value now, as it will not be able to be returned later. 
+15. Place the generated Secret in the Config JSON file under ClientCredential... Secret You must grab this value now, as it will not be able to be returned later.
 
 ## Patient Room Account Setup
 
@@ -126,7 +125,8 @@ Before running this script, you will need the following:
 
 - An Azure AD Security Group
   - This group should be empty, and will only be used for the patient room accounts. If provisioning manually, ensure all users are added to this group. It will be used later for licensing and in the flows.
-  - You will also need to setup Group Based Licensing for the Azure AD Security Group. Please assign an Office 365 license to the group and disable all assignment options except for Microsoft Teams, Skype for Business and Exchange Online. Detailed instructions for Group Based Licensing can be found here: [https://docs.microsoft.com/en-us/azure/active-directory/users-groups-roles/licensing-groups-assign](https://docs.microsoft.com/en-us/azure/active-directory/users-groups-roles/licensing-groups-assign).
+  - You will also need to setup Group Based Licensing for the Azure AD Security Group. Please assign an Office 365 license to the group and disable all assignment options except for Microsoft Teams, Skype for Business and Exchange Online. Detailed instructions for Group Based Licensing can be found here: [Assign licenses to users by group membership in Azure Active Directory
+](https://docs.microsoft.com/en-us/azure/active-directory/users-groups-roles/licensing-groups-assign).
 - A CSV file with the desired Patient Room account information
   - Columns:
     - AccountName
@@ -169,13 +169,13 @@ In this repository is a PowerShell Script (CreateTeamsAndSPO.ps1) that:
 
 1. Creates the Team
 2. Sets Team Settings:
-  1. Visibility: Private
-  2. Disables member capabilities: Add/Remove Apps, Create/Update/Remove Channels, Create/Update/Remove Connectors, Create/Update/Remove Tabs
+    1. Visibility: Private
+    2. Disables member capabilities: Add/Remove Apps, Create/Update/Remove Channels, Create/Update/Remove Connectors, Create/Update/Remove Tabs
 3. Adds members to Team
 4. Creates SharePoint Lists in the associated SharePoint site
 5. Adds columns and custom view to lists
-5a. Columns: Title (existing by default), RoomLocation, RoomSubLocation, MeetingLink, EventID(skip if provisioning manually).
-5b. View: (Create a new view)[https://support.office.com/en-us/article/Create-change-or-delete-a-view-of-a-list-or-library-27AE65B8-BC5B-4949-B29B-4EE87144A9C9] and then (add in the JSON)[https://support.microsoft.com/en-us/office/formatting-list-views-f737fb8b-afb7-45b9-b9b5-4505d4427dd1?ui=en-us&rs=en-us&ad=us] from SharePointViewFormatting.json
+    1. Columns: Title (existing by default), RoomLocation, RoomSubLocation, MeetingLink, EventID(skip if provisioning manually).
+    2. View: [Create a new view](https://support.office.com/article/Create-change-or-delete-a-view-of-a-list-or-library-27AE65B8-BC5B-4949-B29B-4EE87144A9C9) and then [add in the JSON](https://support.microsoft.com/office/formatting-list-views-f737fb8b-afb7-45b9-b9b5-4505d4427dd1) from SharePointViewFormatting.json
 6. Creates Channels and pins the SharePoint list as a Tab
 7. Removes Wiki Tabs from the channels
 
