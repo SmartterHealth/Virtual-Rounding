@@ -10,7 +10,10 @@ KiZAN is working actively on other options to be considered, which we will provi
 
 ## Option A – Third Meeting Account
 
-First, establish an account such as "MeetingOrganizerBuilding1Floor1".  Create unique "Profiles" in your browser of choice (Chrome, Firefox, New Edge all support this) and have each profile signed into the the room meeting. This device should join with audio off, video disabled, and would need to be secured (such as in an IT closet or similar), but would essentially "hold" the meetings open.  Each meeting joining would need to be re-joined each 24 hours as the clients time-out.
+First, establish an account such as "MeetingOrganizerBuilding1Floor1".  Create unique "Profiles" in your browser of choice (Chrome, Firefox, New Edge all support this) and have each profile signed into the the room meeting. This device should join with audio off, incoming video disabled, and would need to be physically secured (such as in an IT closet or similar), but would essentially "hold" the meetings open along with the patient room.
+
+Each meeting joining would need to be re-joined each 24 hours as the clients time-out. (Actively testing 2020.04.07 PM how long we can expect browser sessions to remain open).
+
 This would in essence ensure that the meeting is never down to one participant, working around this issue temporarily.
 
 ### Benefits of Third Meeting Account
