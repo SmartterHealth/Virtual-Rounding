@@ -13,7 +13,7 @@ This is the Virtual Rounding solution referenced in the Microsoft Health &amp; L
 
 ## Disclaimer
 
-          This solution is a sample and may be used with Microsoft Teams for dissemination of reference information only. This solution is not intended or made available for use as a medical device, clinical support, diagnostic tool, or other technology intended to be used in the diagnosis, cure, mitigation, treatment, or prevention of disease or other conditions, and no license or right is granted by Microsoft to use this solution for such purposes. This solution is not designed or intended to be a substitute for professional medical advice, diagnosis, treatment, or judgement and should not be used as such. Customer bears the sole risk and responsibility for any use. Microsoft does not warrant that the solution or any materials provided in connection therewith will be sufficient for any medical purposes or meet the health or medical requirements of any person._
+This solution is a sample and may be used with Microsoft Teams for dissemination of reference information only. This solution is not intended or made available for use as a medical device, clinical support, diagnostic tool, or other technology intended to be used in the diagnosis, cure, mitigation, treatment, or prevention of disease or other conditions, and no license or right is granted by Microsoft to use this solution for such purposes. This solution is not designed or intended to be a substitute for professional medical advice, diagnosis, treatment, or judgement and should not be used as such. Customer bears the sole risk and responsibility for any use. Microsoft does not warrant that the solution or any materials provided in connection therewith will be sufficient for any medical purposes or meet the health or medical requirements of any person._
 
 ## Solution Design
 
@@ -21,17 +21,17 @@ This is the Virtual Rounding solution referenced in the Microsoft Health &amp; L
 
 Each patient room will have an associated Office 365 account, with only Microsoft Teams and Exchange Online licensing applied. Custom Teams Policies will be applied to the accounts to limit the capabilities within the Teams application &amp; meetings, including:
 
-    Disable Chat
-    Disable Calling
-    Disable Organization browsing
-    Disable Meeting &amp; Live Event creation
-    Disable Discovery of Private Teams
-    Disable Installation/Adding Apps
-    Disable Installation/Adding Apps
-    Hide all apps except Calendar
-    Disable Meeting Features: Meet Now, Cloud Recording, Transcription, Screen Sharing, PowerPoint Sharing, Whiteboard, Shared Notes, Anonymous user admission, Meeting Chat
+- Disable Chat
+- Disable Calling
+- Disable Organization browsing
+- Disable Meeting &amp; Live Event creation
+- Disable Discovery of Private Teams
+- Disable Installation/Adding Apps
+- Disable Installation/Adding Apps
+- Hide all apps except Calendar
+- Disable Meeting Features: Meet Now, Cloud Recording, Transcription, Screen Sharing, PowerPoint Sharing, Whiteboard, Shared Notes, Anonymous user admission, Meeting Chat
 
- Each patient room will have an ongoing Teams meeting running for a long period of time (months or longer), and that meeting will be reused for that room as patients flow in and out of rooms. A previous version of this guide said to create new meetings every 24 hours, but that has been found to not be necessary.
+ Each patient room will have an ongoing Teams meeting running for a long period of time (months or longer), and that meeting will be reused for that room as patients flow in and out of rooms. As noted in the known limitations, there is a 24 hour client timeout; please see that section for guidance.
 
 Care providers will not be directly invited to any meetings, but instead have access to a Team or Teams with a list of meetings pinned as a tab (from SharePoint). Providers will be able to join a Patient Room meeting via the Join URL hyperlink in the list.
 
