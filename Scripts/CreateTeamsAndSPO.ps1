@@ -75,6 +75,7 @@ foreach ($location in $locationsList) {
     #Create Team with policies
     $teamName = $location.LocationName + " " + $teamNameSuffix 
     $teamShortName = $location.LocationName.replace(' ','')
+    #check for Team/Site
     New-Team -DisplayName $teamName -Visibility Private -Owner $groupOwner -AllowAddRemoveApps $false -AllowCreateUpdateChannels $false -AllowCreateUpdateRemoveConnectors $false -AllowCreateUpdateRemoveTabs $false -AllowDeleteChannels $false -MailNickName $teamShortName
     #Add members to team
     $groupID = (Get-AzureADGroup -SearchString $location.MembersGroupName).ObjectID
@@ -109,13 +110,16 @@ foreach ($sublocation in $sublocationsList) {
     Connect-PnPOnline -Url $teamSpoUrl -Credentials $credentials
     $contentType = Get-PnPContentType -Identity "VirtualRoundingRoom"
 
+    #check for list
     New-PnPList -Title $sublocationName -Template GenericList
     Start-Sleep -Seconds 5
     $sublocationShortName = $sublocationName.replace('-','')
     $list = Get-PnPList -Identity ("Lists/" + $sublocationShortName)
     Set-PnPList -Identity $sublocationShortName -EnableContentTypes $true
     #set Permissions?
-    Add-PnPContentTypeToList -List $list -ContentType $contentType -DefaultContentType
+    #check for content typer
+    $newContentType Add-PnPContentTypeToList -List $list -ContentType $contentType -DefaultContentType
+    #check for view
     $newView = Add-PnPView -List $list -Title Meetings -SetAsDefault -Fields Title, RoomLocation, MeetingLink
     Start-Sleep -Seconds 20 #toolong?
     $view = Get-PnPView -List $list -Identity Meetings
