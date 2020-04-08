@@ -248,16 +248,23 @@ The meeting bot is joined into a meeting using a Graph API call, which can be au
 ### Adding the bot to a Teams meeting
 A Graph API call using your Azure AD App Registration (Client ID, Client Secret, Tenant ID) will allow us to add the bot to an existing scheduled meeting.
 To get the items that the API call will need, get your meeting join link, which should look like this:
+
 `https://teams.microsoft.com/l/meetup-join/19%3ameeting_YWNiYzA2NTctOGIzMy00MzRhLTkyNmUtZGY4NzM2YTFhNmEz%40thread.v2/0?context=%7b%22Tid%22%3a%226be58f7f-c45d-43f9-89e4-b97ec2a06d8e%22%2c%22Oid%22%3a%22ac2ea2ab-9845-4308-a99c-8fdc6548ceac%22%7d`
+
 Decoding that URI, we get this:
+
 `https://teams.microsoft.com/l/meetup-join/19:meeting_YWNiYzA2NTctOGIzMy00MzRhLTkyNmUtZGY4NzM2YTFhNmEz@thread.v2/0?context={"Tid":"6be58f7f-c45d-43f9-89e4-b97ec2a06d8e","Oid":"ac2ea2ab-9845-4308-a99c-8fdc6548ceac"}`
+
 The two items we need from the decoded uri are:
+
 threadId: `19:meeting_YWNiYzA2NTctOGIzMy00MzRhLTkyNmUtZGY4NzM2YTFhNmEz@thread.v2`
+
 organizerId `ac2ea2ab-9845-4308-a99c-8fdc6548ceac`
 
 Using that information, call the graph API using the following
 
 Call: `POST https://graph.microsoft.com/beta/communications/calls`
+
 Body:
 ```json
 {
