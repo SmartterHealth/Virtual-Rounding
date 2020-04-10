@@ -111,7 +111,7 @@ foreach ($account in $accountList){
     $upn = $account.AccountUPN
     #Check if account is ready
     $user = Get-CsOnlineUser -Identity $upn -ErrorAction SilentlyContinue
-    while ($user -eq $null){
+    while ($null -eq $user){
         Write-Host "$upn is not ready for Teams Policies. Would you like to wait 15 more minutes (w), skip this user (s), or cancel the script (c)? (Default is Wait)" -ForegroundColor Yellow
         $readHost = Read-Host " ( w / s / c )"
         Switch ($readHost){

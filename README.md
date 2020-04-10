@@ -1,13 +1,18 @@
 # Virtual Rounding using Microsoft Teams
 
-_Version: 1.1
-Updated 4/8/2020_
+_Version: 1.2
+Updated 4/10/2020_
 
 ## Changelog
 
+### Version 1.2
+
+- Added in documentation regarding workaround solutions, refined Bot creation process
+- PowerShell script to bulk join bot into meetings checked into initial repository (sorry, no documentation yet, coming this weekend)
+
 ### Version 1.1
 
-Date: 4/9/2020
+Date: 4/8/2020
 
 - All scripts now have added delays after crucial steps to ensure provisioning of resources, and extra catches to ensure more time is given for provisioning when necessary.
 - All scripts no longer need direct modification for variables. A single JSON file is used for all variables, and scripts shouldn't need modifications unless you have desired customizations.
