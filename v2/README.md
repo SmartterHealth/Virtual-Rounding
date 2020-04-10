@@ -9,7 +9,7 @@ Version 2 will include the following improved features:
    - One click join for Patient Rooms
    ![Teams Policy](/v2/Documentation/Images/PatientJoinApp.png)
    - Meeting Reset and Family Invites for Floor Staff/Adminsitrators
-   ![Teams Policy](/Documentation/Images/ConfigApp1.png)
-   ![Teams Policy](/Documentation/Images/ConfigApp2.png)
+   ![Teams Policy](/v2/Documentation/Images/ConfigApp1.png)
+   ![Teams Policy](/v2/Documentation/Images/ConfigApp2.png)
 
 Check back here soon for updates!
