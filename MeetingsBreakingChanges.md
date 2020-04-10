@@ -2,7 +2,7 @@
 
 As of April 6th, 2020, there appears to be a newly noted client behavior, in which Patients' Rooms are being disconnected from meetings approximately 30 minutes after a care provider has disconnected from a room meeting.
 
-Below are some initial workarounds KiZAN and Microsoft have been able to develop for the "meeting disconnect" scenario. Hopefully the below are temporary workarounds, as none are perfect, but we wanted to share what we've put together so far. Each solution is "stand alone", with it's own benefits and drawbacks; you would not need to implement each of these, however testing each to determine which might be the best solution for your providers and patients is highly recommended. KiZAN is here to support you however we can in getting this resolved ASAP; and Microsoft is working diligently to see if they are able to roll-back the change that occurred it as well as to evaluate additional workarounds.
+Below are some initial workarounds KiZAN and Microsoft have been able to develop for the "meeting disconnect" scenario. Hopefully the below are temporary workarounds, as none are perfect, but we wanted to share what we've put together so far. Each solution is "stand alone", with it's own benefits and drawbacks; you would not need to implement each of these, however testing each to determine which might be the best solution for your providers and patients is highly recommended.
 
 KiZAN is working actively on other options to be considered, which we will provide as soon as they are vetted.  Similarly if your organization is able to come up with other creative solutions, please feel free to share them directly with us (even if it's just an idea and hasn't been vetted), as I would love to put our heads together on this.
 
@@ -45,12 +45,16 @@ The patient screen will show the "third account" to the side of the provider's v
 
 ## Option C – Leverage Calls Rather than Meetings
 
-Update the "Join" meeting column, rather than pointing to the individual meeting to a "Call" link (which you can create by appending the Room email account to the static string: `https://teams.microsoft.com/l/call/0/0?users=`
-, for example `https://teams.microsoft.com/l/call/0/0?users=NorthTower6thFloorRoom1@M365x107527.onmicrosoft.com`.
-When a provider is ready to conduct a virtual meeting with a patient, he will click this link and the patient will need to "Answer" the call to initiate care.  
-    If you are using iOS devices, you can look into the accessibility feature, "Auto Answer" to initiate the voice call automatically, requiring the patient to only click the "Camera" icon the meeting to enable video.  
-    ![Auto-Answer for iOS](/Documentation/Images/Workarounds-AutoAnswer.png)
+Update the "Join" meeting column, rather than pointing to the individual meeting to a "Call" link (which you can create by appending the Room email account to the static string: `https://teams.microsoft.com/l/chat/0/0?users=`
+, for example `https://teams.microsoft.com/l/chat/0/0?users=NTFloor6Room1@M365demo.onmicrosoft.com`.
+
+When a provider is ready to conduct a virtual meeting with a patient, he will click this link to start up the chat, click the "Camera" icon and start up a video call with the patient and the patient will need to "Answer" the call to initiate care.  
+
+If you are using iOS devices, you can look into the accessibility feature, "Auto Answer" to initiate the voice call automatically, requiring the patient to only click the "Camera" icon the meeting to enable video.  
+![Auto-Answer for iOS](/Documentation/Images/Workarounds-AutoAnswer.png)
+
 To ensure the patient is ready to join, you can rely on your existing in-room audio functions to "page" the patient to be on the lookout for the incoming call.
+
 You may want to consider the in-room providers updating the Teams client in each room (or configuring via the provisioning process) a longer period than the default 20-seconds a call will ring before being marked as "Unanswered"
 
 ![Calling Setting for Rings](/Documentation/Images/Workarounds-CallingSettings.png)
@@ -62,7 +66,8 @@ Patients answer the call, allowing video only when they are prepared for it
 ### Drawbacks of Calls
 
 Patients must touch the device to enable camera (and answer the call on non-iOS devices).  A mouse/keyboard, or Bluetooth speakerphone could be used to not require direct device interaction, but will not fully remove this.
-Until KiZAN/Microsoft can provide updated provisioning scripts; the "Join" link will need to be manually populated for each Room.
+
+Until KiZAN can provide updated provisioning scripts; the "Join" link will need to be manually populated for each Room in the "Virtual Rounding Room" list associated with each location.
 
 ## Option D – "Ask to Join" Meeting
 
