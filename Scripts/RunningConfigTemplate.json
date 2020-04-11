@@ -20,7 +20,9 @@
         "SPOBaseUrl": "https://something.sharepoint.com/",
         "SPOUrl": "https://someth9ing.sharepoint.com/sites/NorthTower",
         "RoomsADGroup": "Rounding Patient Rooms",
-        "MeetingSchedulingUser": "admin@something.onmicrosoft.com"
+        "MeetingSchedulingUser": "admin@something.onmicrosoft.com",
+        "MFARequired": true,
+        "TenantId": "tenant directory id"
     },
     "ViewJson":
     {

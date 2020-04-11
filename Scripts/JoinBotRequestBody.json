@@ -1,0 +1,26 @@
+{
+    "@odata.type": "#microsoft.graph.call",
+    "callbackUri": "{{callbackUrl}}",
+    "tenantId": "{{tenantId}}",
+    "meetingInfo": {
+      "@odata.type": "#microsoft.graph.organizerMeetingInfo",
+      "organizer": {
+        "@odata.type": "#microsoft.graph.identitySet",
+        "user": {
+          "@odata.type": "#microsoft.graph.identity",
+          "id": "{{organizerId}}",
+          "tenantId": "{{tenantId}}",
+          "displayName": "RoomProvisioner"
+        }
+      },
+      "allowConversationWithoutHost": true
+     },
+    "mediaConfig": {
+      "@odata.type": "#microsoft.graph.serviceHostedMediaConfig"
+      },
+     "chatInfo": {
+      "@odata.type": "#microsoft.graph.chatInfo",
+      "threadId": "{{threadId}}",
+      "messageId": "0"
+    }
+  }
