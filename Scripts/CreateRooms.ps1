@@ -17,8 +17,10 @@ INSTRUCTIONS:
 Please see https://aka.ms/virtualroundingcode
 #>
 
-#--------------------------Variables---------------------------#
+#-------------------Configurable Variables---------------------#
 $configFilePath = ".\Scripts\RunningConfig.json"
+
+#--------------System Variables (DO NOT MODIFY)----------------#
 $configFile = Get-Content -Path $configFilePath | ConvertFrom-Json
 
 $roomListCsvFilePath = $configFile.LocationCsvPaths.Rooms
@@ -78,8 +80,10 @@ foreach ($account in $accountList){
     $upnParts = $account.AccountUPN.Split("@")
     $mailnickname = ($upnParts)[0]
     $upn = $account.AccountUPN.tostring()
+    $userCheck = $null
+    $userCheck = Get-AzureADUser -Filter "UserPrincipalName eq '$upn'"
     #Test for Account
-    if (Get-AzureADUser -Filter "UserPrincipalName eq '$upn'") {
+    if ($null -eq $userCheck) {
         #Create Account
         New-AzureADUser -AccountEnabled $true -DisplayName $account.AccountName -UserPrincipalName $upn -Department $account.AccountLocation -UsageLocation "US" -PasswordProfile $PasswordProfile -JobTitle $account.AccountSubLocation -MailNickName $mailnickname
         #Add Account to License Group
@@ -106,10 +110,10 @@ else {$skypeSession = New-CsOnlineSession -Credential $creds -ErrorAction Stop}
 Import-PSSession $skypeSession -ErrorAction Stop
 
 foreach ($account in $accountList){
-    $upn = $account.UPN
+    $upn = $account.AccountUPN
     #Check if account is ready
     $user = Get-CsOnlineUser -Identity $upn -ErrorAction SilentlyContinue
-    while ($user -eq $null){
+    while ($null -eq $user){
         Write-Host "$upn is not ready for Teams Policies. Would you like to wait 15 more minutes (w), skip this user (s), or cancel the script (c)? (Default is Wait)" -ForegroundColor Yellow
         $readHost = Read-Host " ( w / s / c )"
         Switch ($readHost){
