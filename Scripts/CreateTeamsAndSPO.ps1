@@ -24,7 +24,7 @@ $locationsCsvFile = $configFile.LocationCsvPaths.Locations
 $subLocationsCsvFile = $configFile.LocationCsvPaths.SubLocations
 $groupOwner = $configFile.TenantInfo.MeetingSchedulingUser
 $spviewJsonFilePath = $configFile.ViewJson.SPViewJsonFilePath
-$teamNameSuffix = $configFile.GroupConfiguration.RoundingTeamPrefix
+$teamNameSuffix = $configFile.GroupConfiguration.RoundingTeamSuffix
 $clientId = $configFile.ClientCredential.Id
 $clientSecret = $configFile.ClientCredential.Secret
 $tenantName = $configFile.TenantInfo.TenantName
@@ -77,7 +77,7 @@ else {Connect-AzureAD -Credential $creds -ErrorAction Stop}
 $groupOwner = $adminUPN
 
 Test-Existence((Get-Module MicrosofTeams),'The MicrosoftTeams Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
-Import-Module AzureAD
+Import-Module MicrosoftTeams
 if ($useMFA) {Connect-MicrosoftTeams -ErrorAction Stop}
 else {Connect-MicrosoftTeams -Credential $creds -ErrorAction Stop}
 
@@ -154,7 +154,7 @@ foreach ($location in $locationsList) {
         Add-PnPField -Type Text -InternalName "RoomSubLocation" -DisplayName "Room SubLocation" -Group "VirtualRounding"
         Add-PnPField -Type URL -InternalName "MeetingLink" -DisplayName "Meeting Link" -Group "VirtualRounding"
         Add-PnPField -Type Text -InternalName "EventID" -DisplayName "EventID" -Group "VirtualRounding"
-        Add-PnPContentType -Name "VirtualRoundingRoom" -Group "VirtualRounding"
+        Add-PnPContentType -Name "VirtualRoundingRoom" -Group "VirtualRounding" | Out-Null
         Start-Sleep -Seconds 5
         $contentType = $null
         while (!$contentType) {
@@ -196,7 +196,7 @@ foreach ($sublocation in $sublocationsList) {
     }
     else {
         Write-Host "Creating SharePoint List '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
-        New-PnPList -Title $sublocationName -Url $sublocationshortName -Template GenericList
+        New-PnPList -Title $sublocationName -Url "Lists/$sublocationshortName" -Template GenericList
         Start-Sleep -Seconds 5
         while(!$list){
             try {
@@ -211,7 +211,7 @@ foreach ($sublocation in $sublocationsList) {
     Write-Host "Enabling Content Types for SharePoint List '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
     Set-PnPList -Identity $sublocationShortName -EnableContentTypes $true
     Write-Host "Adding 'VirtualRoundingRoom' Content Type to SharePoint List '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
-    Add-PnPContentTypeToList -List $list -ContentType $contentType -DefaultContentType -ErrorAction SilentlyContinue #Bug in PnP cmdlet, so SilentlyContinue required
+    Add-PnPContentTypeToList -List $list -ContentType $contentType -DefaultContentType -ErrorAction SilentlyContinue | Out-Null #Bug in PnP cmdlet, so SilentlyContinue required
     $newContentType = $null
     while(!$newContentType){
         try {
@@ -223,11 +223,11 @@ foreach ($sublocation in $sublocationsList) {
         }
     }
     Write-Host "Adding 'Meetings' View to SharePoint List '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
-    Add-PnPView -List $list -Title Meetings -SetAsDefault -Fields Title, RoomLocation, MeetingLink #Bug in PnP cmdlet, so siletlycontinue required
+    Add-PnPView -List $list -Title Meetings -SetAsDefault -Fields Title, RoomLocation, MeetingLink -ErrorAction SilentlyContinue | Out-Null #Bug in PnP cmdlet, so siletlycontinue required
     Write-Host "Pausing for 20 seconds for provisioning." -ForegroundColor Green
     Start-Sleep -Seconds 20
     $view = $null
-    while(!$newContentType){
+    while(!$view){
         try {
             $view = Get-PnPView -List $list -Identity Meetings
         }
