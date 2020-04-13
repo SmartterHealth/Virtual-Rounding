@@ -235,7 +235,7 @@ The meeting bot is joined into a meeting using a Graph API call, which can be au
 1. Go to https://dev.botframework.com/bots/new
 2. Fill out all the pertinent information, ensuring to use the app ID from your Azure AD App registration.
 3. Add Microsoft Teams as a channel
-4. Select the calling tab, and select the checkbox to _Enable calling_. For your webhook, enter any https URL. We will never be calling this bot, so this field won't be relevant, but it is required to enter something.
+4. Select the calling tab, and select the checkbox to _Enable calling_. For your webhook, enter any _valid_ https URL. We will never be calling this bot, so this field won't be relevant, but it is required to enter something.
 5. In Microsoft Teams, select Apps from the left pane and then select App Studio.
 6. From the top pane, click Manifest editor and then Create a new app from the left pane.
 7. In the App details tab, provide the basic information.
