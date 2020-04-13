@@ -14,6 +14,7 @@
     {
         "TenantName": "something.onmicrosoft.com",
         "SPOBaseUrl": "https://something.sharepoint.com/",
+        "SPOMasterSiteName": "VirtualRounding",
         "RoomsADGroup": "Rounding Patient Rooms",
         "MFARequired": false,
         "GlobalAdminUPN": "admin@contoso.com"

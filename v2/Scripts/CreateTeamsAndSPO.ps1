@@ -24,7 +24,7 @@ $locationsCsvFile = $configFile.LocationCsvPaths.Locations
 $subLocationsCsvFile = $configFile.LocationCsvPaths.SubLocations
 $groupOwner = $configFile.TenantInfo.MeetingSchedulingUser
 $spviewJsonFilePath = $configFile.ViewJson.SPViewJsonFilePath
-$teamNameSuffix = $configFile.GroupConfiguration.RoundingTeamPrefix
+$teamNameSuffix = $configFile.GroupConfiguration.RoundingTeamSuffix
 $clientId = $configFile.ClientCredential.Id
 $clientSecret = $configFile.ClientCredential.Secret
 $tenantName = $configFile.TenantInfo.TenantName
@@ -34,7 +34,7 @@ $useMFA = $configFile.TenantInfo.MFARequired
 $adminUPN = $configFile.TenantInfo.GlobalAdminUPN
 
 #--------------------------Functions---------------------------#
-Function Test-Existence {
+Function Check-Module {
     [CmdletBinding()]
     param(
         $value,
@@ -69,15 +69,15 @@ Function Ask-User {
 #-------------------------Script Setup-------------------------#
 if (!$useMFA) {$creds = Get-Credential -Message 'Please sign in to your Global Admin account:' -UserName $adminUPN}
 
-Test-Existence((Get-Module AzureAD-Preview),'The AzureAD Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
+Check-Module((Get-Module AzureAD-Preview),'The AzureAD Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
 Import-Module AzureAD
 if ($useMFA) {Connect-AzureAD -ErrorAction Stop}
 else {Connect-AzureAD -Credential $creds -ErrorAction Stop}
 
 $groupOwner = $adminUPN
 
-Test-Existence((Get-Module MicrosofTeams),'The MicrosoftTeams Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
-Import-Module AzureAD
+Check-Module((Get-Module MicrosofTeams),'The MicrosoftTeams Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
+Import-Module MicrosoftTeams
 if ($useMFA) {Connect-MicrosoftTeams -ErrorAction Stop}
 else {Connect-MicrosoftTeams -Credential $creds -ErrorAction Stop}
 
@@ -154,13 +154,14 @@ foreach ($location in $locationsList) {
         Add-PnPField -Type Text -InternalName "RoomSubLocation" -DisplayName "Room SubLocation" -Group "VirtualRounding"
         Add-PnPField -Type URL -InternalName "MeetingLink" -DisplayName "Meeting Link" -Group "VirtualRounding"
         Add-PnPField -Type Text -InternalName "EventID" -DisplayName "EventID" -Group "VirtualRounding"
-        Add-PnPField -Type Text -InternalName "SharetoFamily" -DisplayName "Share to Family" -Group "VirtualRounding"
-        Add-PnPField -Type Text -InternalName "ResetMeeting" -DisplayName "Reset Meeting" -Group "VirtualRounding"
+        Add-PnPField -Type Text -InternalName "Share Externally" -DisplayName "Share Externally" -Group "VirtualRounding"
+        Add-PnPField -Type Text -InternalName "Reset Room" -DisplayName "Reset Room" -Group "VirtualRounding"
         Add-PnPField -Type DateTime -InternalName "LastReset" -DisplayName "Last Reset" -Group "VirtualRounding"
-        Add-PnPField -Type Integer -InternalName "FamilyInvited" -DisplayName "Family Invited" -Group "VirtualRounding"
-        Add-PnPField -Type DateTime -InternalName "LastFamilyInvite" -DisplayName "Last Family Invite" -Group "VirtualRounding"
+        Add-PnPField -Type Number -InternalName "SharedWith" -DisplayName "Shared With" -Group "VirtualRounding"
+        #Set-PnPDefaultColumnValues
+        Add-PnPField -Type DateTime -InternalName "LastShare" -DisplayName "Last Share" -Group "VirtualRounding"
         Add-PnPField -Type Text -InternalName "RoomUPN" -DisplayName "Room UPN" -Group "VirtualRounding"
-        Add-PnPContentType -Name "VirtualRoundingRoom" -Group "VirtualRounding"
+        Add-PnPContentType -Name "VirtualRoundingRoom" -Group "VirtualRounding" | Out-Null
         Start-Sleep -Seconds 5
         $contentType = $null
         while (!$contentType) {
@@ -175,13 +176,13 @@ foreach ($location in $locationsList) {
         Add-PnPFieldToContentType -Field "RoomLocation" -ContentType $contentType
         Add-PnPFieldToContentType -Field "RoomSubLocation" -ContentType $contentType
         Add-PnPFieldToContentType -Field "MeetingLink" -ContentType $contentType
-        Add-PnPFieldToContentType -Field "EventID" -ContentType $contentType
+        Add-PnPFieldToContentType -Field "EventID" -ContentType $contentType -Hidden $true
         Add-PnPFieldToContentType -Field "SharetoFamily" -ContentType $contentType
         Add-PnPFieldToContentType -Field "ResetMeeting" -ContentType $contentType
         Add-PnPFieldToContentType -Field "LastReset" -ContentType $contentType
         Add-PnPFieldToContentType -Field "FamilyInvited" -ContentType $contentType
         Add-PnPFieldToContentType -Field "LastFamilyInvite" -ContentType $contentType
-        Add-PnPFieldToContentType -Field "RoomUPN" -ContentType $contentType
+        Add-PnPFieldToContentType -Field "RoomUPN" -ContentType $contentType -Hidden $true
         Disconnect-PnPOnline
     }
 }
@@ -208,7 +209,7 @@ foreach ($sublocation in $sublocationsList) {
     }
     else {
         Write-Host "Creating SharePoint List '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
-        New-PnPList -Title $sublocationName -Url $sublocationshortName -Template GenericList
+        New-PnPList -Title $sublocationName -Url "Lists/$sublocationshortName" -Template GenericList
         Start-Sleep -Seconds 5
         while(!$list){
             try {
@@ -223,7 +224,7 @@ foreach ($sublocation in $sublocationsList) {
     Write-Host "Enabling Content Types for SharePoint List '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
     Set-PnPList -Identity $sublocationShortName -EnableContentTypes $true
     Write-Host "Adding 'VirtualRoundingRoom' Content Type to SharePoint List '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
-    Add-PnPContentTypeToList -List $list -ContentType $contentType -DefaultContentType -ErrorAction SilentlyContinue #Bug in PnP cmdlet, so SilentlyContinue required
+    Add-PnPContentTypeToList -List $list -ContentType $contentType -DefaultContentType -ErrorAction SilentlyContinue | Out-Null #Bug in PnP cmdlet, so SilentlyContinue required
     $newContentType = $null
     while(!$newContentType){
         try {
@@ -235,11 +236,11 @@ foreach ($sublocation in $sublocationsList) {
         }
     }
     Write-Host "Adding 'Meetings' View to SharePoint List '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
-    Add-PnPView -List $list -Title Meetings -SetAsDefault -Fields Title, RoomLocation, MeetingLink #Bug in PnP cmdlet, so siletlycontinue required
+    Add-PnPView -List $list -Title Meetings -SetAsDefault -Fields Title, RoomLocation, MeetingLink -ErrorAction SilentlyContinue | Out-Null #Bug in PnP cmdlet, so siletlycontinue required
     Write-Host "Pausing for 20 seconds for provisioning." -ForegroundColor Green
     Start-Sleep -Seconds 20
     $view = $null
-    while(!$newContentType){
+    while(!$view){
         try {
             $view = Get-PnPView -List $list -Identity Meetings
         }

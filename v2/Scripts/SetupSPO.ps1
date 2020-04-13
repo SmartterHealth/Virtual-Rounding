@@ -29,12 +29,17 @@ $clientId = $configFile.ClientCredential.Id
 $clientSecret = $configFile.ClientCredential.Secret
 $tenantName = $configFile.TenantInfo.TenantName
 $sharepointBaseUrl = $configFile.TenantInfo.SPOBaseUrl
+$sharepointMasterSiteName = $configFile.TenantInfo.SPOMasterSiteName
+$teamsTabName = $configFile.TeamsInfo.TabnName
+$timeZoneNumber = $configFile.TimeZoneInfo.UTCOffset
 
 $useMFA = $configFile.TenantInfo.MFARequired
 $adminUPN = $configFile.TenantInfo.GlobalAdminUPN
 
+if(!$useMFa -or !$adminUPN){Write-Host "Missing JSON values"} #FINISHME
+
 #--------------------------Functions---------------------------#
-Function Test-Existence {
+Function Check-Module {
     [CmdletBinding()]
     param(
         $value,
@@ -69,41 +74,59 @@ Function Ask-User {
 #-------------------------Script Setup-------------------------#
 if (!$useMFA) {$creds = Get-Credential -Message 'Please sign in to your Global Admin account:' -UserName $adminUPN}
 
-Test-Existence((Get-Module AzureAD-Preview),'The AzureAD Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
+Check-Module((Get-Module AzureAD-Preview),'The AzureAD Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
 Import-Module AzureAD
 if ($useMFA) {Connect-AzureAD -ErrorAction Stop}
 else {Connect-AzureAD -Credential $creds -ErrorAction Stop}
 
 $groupOwner = $adminUPN
 
-Test-Existence((Get-Module MicrosofTeams),'The MicrosoftTeams Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
-Import-Module MicrosoftTeams
-if ($useMFA) {Connect-MicrosoftTeams -ErrorAction Stop}
-else {Connect-MicrosoftTeams -Credential $creds -ErrorAction Stop}
-
-Test-Existence((Get-Module SharePointPnPPowerShellOnline),'The SharePointPnPPowerShellOnline Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
-Import-Module SharePointPnPPowerShellOnline -WarningAction SilentlyContinue #Always outputs warning due to unapproved verbs
-
-#Import CSV of Teams
-$locationsList = Import-Csv -Path $locationsCsvFile
-
-#Import CSV of Channels/Lists
-$subLocationsList = Import-Csv -Path $subLocationsCsvFile
+Check-Module((Get-Module SharePointPnPPowerShellOnline),'The SharePointPnPPowerShellOnline Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
+Import-Module SharePointPnPPowerShellOnline
 
 #Import JSON formatting file
 $jsonContent = Get-Content $spviewJsonFilePath
 $jsonContent | ConvertFrom-Json | Out-Null
 
-#Prepare Microsoft Graph API Calls
-$ReqTokenBody = @{
-    Grant_Type    = "client_credentials"
-    Scope         = "https://graph.microsoft.com/.default"
-    client_Id     = $clientID
-    Client_Secret = $clientSecret
-} 
-$TokenResponse = Invoke-RestMethod -Uri "https://login.microsoftonline.com/$TenantName/oauth2/v2.0/token" -Method POST -Body $ReqTokenBody
-
 #-----------------Create Teams and add Members-----------------#
+Write-Host "Connecting to SharePoint Online" -ForegroundColor Green
+if ($useMFA) { Connect-PnPOnline -Url $sharepointBaseUrl -UseWebLogin }
+else { Connect-PnPOnline -Url $sharepointBaseUrl -Credential $creds }
+
+Write-Host "Creating Site '$sharepointMasterSiteName'" -ForegroundColor Gree
+
+$existingTeamMail = Get-PnPSiteSearchQueryResults -Query "Title:$sharepointSiteMasterSiteName"
+if ($existingTeamName -or $existingTeamMail) {
+    $userOption = Ask-User("Existing team found for '$teamName' or '$teamShortName'. Would you like to continue and use this existing team?")
+    if ($userOption -eq $false) { Write-Host "Script stopping by user request" -ForegroundColor Red -ErrorAction Stop }
+}
+
+
+
+Write-Host "Connecting to Site '$sharepointMasterSiteName'" -ForegroundColor Green
+while ($siteReady -eq $false) {
+    try {
+        if ($useMFA) { Connect-PnPOnline -Url $teamSpoUrl -UseWebLogin }
+        else { Connect-PnPOnline -Url $teamSpoUrl -Credential $creds }
+        $siteReady = $true
+    }
+    catch {
+        $userOption2 = Ask-User("Unable to connect to SharePoint Site. This is commonly a result of a provisioning delay. Would you like to have the script pause for 5 minutes and try again?")
+        if ($userOption2 -eq $false) { Write-Host "Script stopping by user request" -ForegroundColor Red -ErrorAction Stop }
+        if ($userOption2 -eq $true) { Write-Host "Pausing for 5 minutes to wait for SharePoint Site Provisioning." -ForegroundColor Green; Start-Sleep -Seconds 300 }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
 foreach ($location in $locationsList) {
     #Create Team with policies
     $teamName = $location.LocationName + " " + $teamNameSuffix 
@@ -122,30 +145,20 @@ foreach ($location in $locationsList) {
         $teamID = (Get-AzureADGroup -Filter "DisplayName eq '$teamName'").ObjectID
         #If team has not provisioned yet to AzureAD, keep checking every minute
         while (!$teamID) {
-            Write-Host "Team '$teamName' needs more time to provision before members can be added. Trying agin in 60 seconds." -ForegroundColor Green
             Start-sleep -Seconds 60
             $teamID = (Get-AzureADGroup -Filter "DisplayName eq '$teamName'").ObjectID
         }
         $groupName = $location.MembersGroupName
         $groupID = (Get-AzureADGroup -Filter "DisplayName eq '$groupName'").ObjectID
-        #Ask for new Group Name if none or more than one were found
-        while (!($groupID) -or ($groupID.count -gt 1)){
-            $userOption = Ask-User("Unable to find Azure AD Group with the exact namne of '$groupName', or found multiple. Would you like to cancel or specify a new group name?")
-            if ($userOption -eq $false) { Write-Host "Script stopping by user request" -ForegroundColor Red -ErrorAction Stop }
-            else {
-                $groupName = Read-Host "Exact Group Name of users to be added to '$teamName' Team:"
-                $groupID = (Get-AzureADGroup -Filter "DisplayName eq '$groupName'").ObjectID
-            }
-        }
         $groupMembers = Get-AzureADGroupMember -ObjectId $groupID
         Write-Host "Adding Group Membership to '$teamName' team." -ForegroundColor Green
         foreach ($member in $groupMembers) {
-            Add-AzureADGroupMember -ObjectId $teamID -RefObjectId $member.ObjectID -ErrorAction SilentlyContinue #silentlycontinue if user is already in the Team
+            Add-AzureADGroupMember -ObjectId $teamID -RefObjectId $member.ObjectID
         }
     
         $teamSpoUrl = $sharepointBaseUrl + "sites/" + $teamShortName
         $siteReady = $false
-        Write-Host "Connecting to SharePoint Online: $teamSpoUrl" -ForegroundColor Green
+        Write-Host "Connecting to SharePoint Online" -ForegroundColor Green
         while ($siteReady -eq $false) {
             try {
                 if ($useMFA) { Connect-PnPOnline -Url $teamSpoUrl -UseWebLogin }
@@ -164,6 +177,13 @@ foreach ($location in $locationsList) {
         Add-PnPField -Type Text -InternalName "RoomSubLocation" -DisplayName "Room SubLocation" -Group "VirtualRounding"
         Add-PnPField -Type URL -InternalName "MeetingLink" -DisplayName "Meeting Link" -Group "VirtualRounding"
         Add-PnPField -Type Text -InternalName "EventID" -DisplayName "EventID" -Group "VirtualRounding"
+        Add-PnPField -Type Text -InternalName "Share Externally" -DisplayName "Share Externally" -Group "VirtualRounding"
+        Add-PnPField -Type Text -InternalName "Reset Room" -DisplayName "Reset Room" -Group "VirtualRounding"
+        Add-PnPField -Type DateTime -InternalName "LastReset" -DisplayName "Last Reset" -Group "VirtualRounding"
+        Add-PnPField -Type Number -InternalName "SharedWith" -DisplayName "Shared With" -Group "VirtualRounding"
+        #Set-PnPDefaultColumnValues
+        Add-PnPField -Type DateTime -InternalName "LastShare" -DisplayName "Last Share" -Group "VirtualRounding"
+        Add-PnPField -Type Text -InternalName "RoomUPN" -DisplayName "Room UPN" -Group "VirtualRounding"
         Add-PnPContentType -Name "VirtualRoundingRoom" -Group "VirtualRounding" | Out-Null
         Start-Sleep -Seconds 5
         $contentType = $null
@@ -176,12 +196,16 @@ foreach ($location in $locationsList) {
                 Start-Sleep 60
             }
         }
-        Write-Host "Adding Columns to ContentType" -ForegroundColor Green
         Add-PnPFieldToContentType -Field "RoomLocation" -ContentType $contentType
         Add-PnPFieldToContentType -Field "RoomSubLocation" -ContentType $contentType
         Add-PnPFieldToContentType -Field "MeetingLink" -ContentType $contentType
-        Add-PnPFieldToContentType -Field "EventID" -ContentType $contentType
-        Write-Host "Disconnecting SharePoint Online" -ForegroundColor Green
+        Add-PnPFieldToContentType -Field "EventID" -ContentType $contentType -Hidden $true
+        Add-PnPFieldToContentType -Field "SharetoFamily" -ContentType $contentType
+        Add-PnPFieldToContentType -Field "ResetMeeting" -ContentType $contentType
+        Add-PnPFieldToContentType -Field "LastReset" -ContentType $contentType
+        Add-PnPFieldToContentType -Field "FamilyInvited" -ContentType $contentType
+        Add-PnPFieldToContentType -Field "LastFamilyInvite" -ContentType $contentType
+        Add-PnPFieldToContentType -Field "RoomUPN" -ContentType $contentType -Hidden $true
         Disconnect-PnPOnline
     }
 }
@@ -195,7 +219,7 @@ foreach ($sublocation in $sublocationsList) {
     $teamShortName = $sublocation.LocationName.replace(' ','')
     $teamSpoUrl = $sharepointBaseUrl + "sites/" + $teamShortName
     
-    Write-Host "Connecting to SharePoint Online: $teamSpoUrl" -ForegroundColor Green
+    Write-Host "Connecting to SharePoint Online" -ForegroundColor Green
     if ($useMFA) { Connect-PnPOnline -Url $teamSpoUrl -UseWebLogin }
     else { Connect-PnPOnline -Url $teamSpoUrl -Credential $creds }
 
@@ -208,7 +232,7 @@ foreach ($sublocation in $sublocationsList) {
     }
     else {
         Write-Host "Creating SharePoint List '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
-        New-PnPList -Title $sublocationName -Url "Lists/$sublocationshortName" -Template GenericList -ErrorAction SilentlyContinue | Out-Null #Bug in PnP cmdlet, so SilentlyContinue required
+        New-PnPList -Title $sublocationName -Url "Lists/$sublocationshortName" -Template GenericList
         Start-Sleep -Seconds 5
         while(!$list){
             try {
@@ -221,7 +245,7 @@ foreach ($sublocation in $sublocationsList) {
         }
     }
     Write-Host "Enabling Content Types for SharePoint List '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
-    Set-PnPList -Identity $sublocationShortName -EnableContentTypes $true -ErrorAction SilentlyContinue | Out-Null #Bug in PnP cmdlet, so SilentlyContinue required
+    Set-PnPList -Identity $sublocationShortName -EnableContentTypes $true
     Write-Host "Adding 'VirtualRoundingRoom' Content Type to SharePoint List '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
     Add-PnPContentTypeToList -List $list -ContentType $contentType -DefaultContentType -ErrorAction SilentlyContinue | Out-Null #Bug in PnP cmdlet, so SilentlyContinue required
     $newContentType = $null
@@ -254,7 +278,7 @@ foreach ($sublocation in $sublocationsList) {
     $viewUrl = ($teamSpoUrl + "/Lists/" + $sublocationShortName + "/Meetings.aspx")
     $viewUrlEncoded = [System.Web.HTTPUtility]::UrlEncode($viewUrl)
     $viewUrl = $viewUrl.replace(" ","%20")
-    Write-Host "Disconnecting SharePoint Online" -ForegroundColor Green
+    #####IS THERE A BETTER WAY TO GET THIS VIEW URL?
     Disconnect-PnPOnline
     #-------------------Create Channels------------------------#
     #Create Channel
@@ -265,14 +289,14 @@ foreach ($sublocation in $sublocationsList) {
 "@
     $newChannel = Invoke-RestMethod -Headers @{Authorization = "Bearer $($Tokenresponse.access_token)" } -Uri $channelApiUrl -Body $channelBody -Method Post -ContentType 'application/json'
     #Add SPO List as Tab (need to make it non-hidden)
-    Write-Host "Adding 'Join a Room' tab to channel '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
+    Write-Host "Adding '$teamsTabName' tab to channel '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
     $tabApiUrl = ("https://graph.microsoft.com/beta/teams/" + $teamID + "/channels/" + $newChannel.id + "/tabs")
     $tabBody = @"
         {
-            "displayName": "Join a Room",
+            "displayName": "$teamsTabName",
             "teamsApp@odata.bind" : "https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/2a527703-1f6f-4559-a332-d8a7d288cd88",
             "configuration": {
-              "entityId": "sharepointtab_0.8309667588452743",
+              "entityId": "",
               "contentUrl": "$teamSpoUrl/_layouts/15/teamslogon.aspx?spfx=true&dest=$viewUrlEncoded",
               "websiteUrl": "$viewUrl",
               "removeUrl": null
