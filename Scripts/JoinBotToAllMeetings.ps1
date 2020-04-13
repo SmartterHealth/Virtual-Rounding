@@ -30,6 +30,8 @@ $botCallbackUrl = $callbackUrl = "https://prod-77.eastus.logic.azure.com:443/wor
 $useMFA = $configFile.TenantInfo.MFARequired
 $adminUPN = $configFile.TenantInfo.GlobalAdminUPN
 
+$locationsCsvPath = $configFile.LocationCsvPaths.Locations
+
 #--------------------------Functions---------------------------#
 Function Test-Existence {
     [CmdletBinding()]
@@ -75,7 +77,9 @@ if($useMFA) {
     Connect-AzureAD 
 }
 else {
-    Connect-AzureAD -Credential $Credentials
+    if($null -eq $crdentials) {
+        Connect-AzureAD -Credential $Credentials
+    }
 }
 
 
@@ -87,8 +91,14 @@ $ReqTokenBody = @{
 } 
 $TokenResponse = Invoke-RestMethod -Uri "https://login.microsoftonline.com/$TenantName/oauth2/v2.0/token" -Method POST -Body $ReqTokenBody
 
-#temporary, per site:
-$sharepointSiteUrl = "$sharepointBaseUrl/sites/BHMCWomenandChildren"
+$locationsList = Import-Csv -Path $locationsCsvFile
+foreach ($location in $locationsList) {
+    $teamName = $location.LocationName + " " + $teamNameSuffix 
+    $teamShortName = $location.LocationName.replace(' ', '')
+    #check for existing Team/Site
+    $existingTeam = Get-Team -MailNickName $teamShortName
+    if($existingTeam) {
+        $sharepointSiteUrl = "$sharepointBaseUrl/sites/$teamShortName"
 
 Connect-PnPOnline -Url $sharepointSiteUrl -UseWebLogin
 
@@ -120,10 +130,12 @@ Get-PnpList -Includes ContentTypes,ItemCount | foreach-object {
             }
 
             $body = "C:\Users\justink\GitHub\Virtual-Rounding\Scripts\JoinBotRequestBody.json" | out-boundView -model $teamsMeeting
-
-
             Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/communications/calls" -Body $body -Headers @{Authorization = "Bearer $($Tokenresponse.access_token)" } -ContentType "application/json" -Method POST
 
+            }
         }
+     }
+    else{
+        Write-Host "Unable to find a team for $teamShortName, trudging onwards to the next one"
     }
 }
