@@ -80,6 +80,7 @@ if ($useMFA) {Connect-AzureAD -ErrorAction Stop}
 else {Connect-AzureAD -Credential $creds -ErrorAction Stop}
 
 $groupOwner = $adminUPN
+$sharepointMasterSiteNameShort = $sharepointMasterSiteName.replace(" ","")
 
 Check-Module((Get-Module SharePointPnPPowerShellOnline),'The SharePointPnPPowerShellOnline Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
 Import-Module SharePointPnPPowerShellOnline
@@ -93,15 +94,20 @@ Write-Host "Connecting to SharePoint Online" -ForegroundColor Green
 if ($useMFA) { Connect-PnPOnline -Url $sharepointBaseUrl -UseWebLogin }
 else { Connect-PnPOnline -Url $sharepointBaseUrl -Credential $creds }
 
-Write-Host "Creating Site '$sharepointMasterSiteName'" -ForegroundColor Gree
-
-$existingTeamMail = Get-PnPSiteSearchQueryResults -Query "Title:$sharepointSiteMasterSiteName"
-if ($existingTeamName -or $existingTeamMail) {
-    $userOption = Ask-User("Existing team found for '$teamName' or '$teamShortName'. Would you like to continue and use this existing team?")
+$existingSite = Get-PnPSiteSearchQueryResults -Query "Title:$sharepointSiteMasterSiteName"
+if ($existingSite){$existingSiteTrue = $true}
+while ($existingSiteTrue -eq $true){
+    $userOption = Ask-User("An existing site already exists with the name of '$sharepointSiteMasterSiteName'. Would you like to cancel or specify a new site name?")
     if ($userOption -eq $false) { Write-Host "Script stopping by user request" -ForegroundColor Red -ErrorAction Stop }
+    else {
+        $groupName = Read-Host "New Site Name:"
+        $existingSite = Get-PnPSiteSearchQueryResults -Query "Title:$sharepointSiteMasterSiteName"
+        if (!$existingSite){$existingSiteTrue = $false}
+    }
 }
 
-
+Write-Host "Creating Site '$sharepointMasterSiteName'" -ForegroundColor Green
+New-SPOTenantSite 
 
 Write-Host "Connecting to Site '$sharepointMasterSiteName'" -ForegroundColor Green
 while ($siteReady -eq $false) {

@@ -253,7 +253,7 @@ foreach ($sublocation in $sublocationsList) {
     $view.Context.ExecuteQuery()
     $viewUrl = ($teamSpoUrl + "/Lists/" + $sublocationShortName + "/Meetings.aspx")
     $viewUrlEncoded = [System.Web.HTTPUtility]::UrlEncode($viewUrl)
-    $viewUrl = $viewUrl.replace(" ","%20")
+    $viewUrl = $viewUrl.replace(" ","%20") #Needs to be after the encoding step otherwise encoding will encode the '%' symbol
     Write-Host "Disconnecting SharePoint Online" -ForegroundColor Green
     Disconnect-PnPOnline
     #-------------------Create Channels------------------------#
