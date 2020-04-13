@@ -292,7 +292,23 @@ Body:
   }
 }
 ```
-We will have modified Flows (for PowerAutomate) published in the next 48 hours to assist with automating this.
+### Flow for automating adding bot to meetings
+We have built a flow for you to use to continuously add the bot to all meetings. This will ensure the bot is not outside of the meeting for more than 25 minutes, ensuring the patient room will not be kicked out either. Again, the only reason the bot will be kicked out is after 24 hours, or if the patient room is not joined 30 minutes. The flow will solve both of those.
+
+Prerequisites:
+
+- A Power Automate Premium license will be required for this piece (P1, P2, Per User or Per App all work).
+- An account with the Power Automate license applied to it, used for creating the Flows (ideally a service account).
+- SetupMeetingsFlow.zip from this repository
+- Get the Group GUID/ObjectID for your Azure AD Group used in _Patient Room Account Setup_ (find in the group properties in the Azure AD Portal)
+
+Instructions:
+
+1. Login to flow.microsoft.com
+2. Click on &quot;My flows&quot;.
+3. Click &quot;Import&quot;.
+4. Upload AddBotToMeetingsFlow.zip
+5. Update all variables.
 
 ## Meeting Updating
 
