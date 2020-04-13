@@ -15,7 +15,7 @@ INSTRUCTIONS:
 Please see https://github.com/justinkobel/Virtual-Rounding/
 #>
 
-$configFilePath = "C:\Users\justink\GitHub\Virtual-Rounding\Scripts\RunningConfig.json"
+$configFilePath = "C:\Users\justink\OneDrive - KiZAN Technologies, LLC\Scripts\Configs\RunningConfig.json"
 
 $configFile = Get-Content -Path $configFilePath | ConvertFrom-Json
 
@@ -91,51 +91,56 @@ $ReqTokenBody = @{
 } 
 $TokenResponse = Invoke-RestMethod -Uri "https://login.microsoftonline.com/$TenantName/oauth2/v2.0/token" -Method POST -Body $ReqTokenBody
 
-$locationsList = Import-Csv -Path $locationsCsvFile
+$locationsList = Import-Csv -Path $locationsCsvPath
+
+Connect-MicrosoftTeams -Credential $credentials
+
 foreach ($location in $locationsList) {
+
     $teamName = $location.LocationName + " " + $teamNameSuffix 
     $teamShortName = $location.LocationName.replace(' ', '')
     #check for existing Team/Site
     $existingTeam = Get-Team -MailNickName $teamShortName
-    if($existingTeam) {
+    if($existingTeam) 
+    {
         $sharepointSiteUrl = "$sharepointBaseUrl/sites/$teamShortName"
 
-Connect-PnPOnline -Url $sharepointSiteUrl -UseWebLogin
+        Connect-PnPOnline -Url $sharepointSiteUrl -UseWebLogin
 
-Get-PnpList -Includes ContentTypes,ItemCount | foreach-object {
-    $list = $_
+        Get-PnpList -Includes ContentTypes,ItemCount | foreach-object {
+        $list = $_
 
-    if($list.ContentTypes | Where-Object Name -eq "VirtualRoundingRoom")
-    {
-        $listItems = Get-PnPListItem -List $list
-        $listItems | ForEach-Object  {
-            $roundingListItem = $_
+            if($list.ContentTypes | Where-Object Name -eq "VirtualRoundingRoom")
+            {
+                $listItems = Get-PnPListItem -List $list
+                $listItems | ForEach-Object  {
+                    $roundingListItem = $_
 
-            $urlOfMeetingToJoin = $roundingListItem["MeetingLink"].Description
+                    $urlOfMeetingToJoin = $roundingListItem["MeetingLink"].Description
             
-            $decodeUrl = [System.Web.HttpUtility]::UrlDecode($urlOfMeetingToJoin)
+                    $decodeUrl = [System.Web.HttpUtility]::UrlDecode($urlOfMeetingToJoin)
 
-            $splitUrl = $decodeUrl.Split("/")
+                    $splitUrl = $decodeUrl.Split("/")
 
-            $threadId = $splitUrl[5]
-            $contextSplit = $splitUrl[6].Split(":")
-            $organizerId = $contextSplit[2]
-            $organizerId = $organizerId.Substring(1, $organizerId.Length -2).Trimend('"')
+                    $threadId = $splitUrl[5]
+                    $contextSplit = $splitUrl[6].Split(":")
+                    $organizerId = $contextSplit[2]
+                    $organizerId = $organizerId.Substring(1, $organizerId.Length -2).Trimend('"')
 
-            $teamsMeeting = New-Object PSObject -property @{
-                callbackUrl = "https://www.kizan.com/"
-                tenantId = $tenantId
-                organizerId = $organizerId
-                threadId = $threadId
-            }
+                    $teamsMeeting = New-Object PSObject -property @{
+                        callbackUrl = "https://prod-77.eastus.logic.azure.com/workflows/1650bb4ce5624c578d1dda634f945957/triggers/manual/paths/invoke"
+                        tenantId = $tenantId
+                        organizerId = $organizerId
+                        threadId = $threadId
+                    }
 
-            $body = "C:\Users\justink\GitHub\Virtual-Rounding\Scripts\JoinBotRequestBody.json" | out-boundView -model $teamsMeeting
-            Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/communications/calls" -Body $body -Headers @{Authorization = "Bearer $($Tokenresponse.access_token)" } -ContentType "application/json" -Method POST
+                    $body = "C:\Users\justink\GitHub\Virtual-Rounding\Scripts\JoinBotRequestBody.json" | out-boundView -model $teamsMeeting
+                    Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/communications/calls" -Body $body -Headers @{Authorization = "Bearer $($Tokenresponse.access_token)" } -ContentType "application/json" -Method POST
 
-            }
-        }
-     }
-    else{
-        Write-Host "Unable to find a team for $teamShortName, trudging onwards to the next one"
+                    }
+        
+             }
+         }
+    
     }
 }
