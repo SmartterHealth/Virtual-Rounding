@@ -2,24 +2,17 @@
 
 Version 2 is a work in progress.
 
-Version 2 will include the following improved features:
-* Ability to invite family
+Version 2 includes the following improved features:
+* Ability to invite family/friends
 * Unified SharePoint List that contains all rooms and links, with views for each sublocation/location still added as tabs in Teams
-* PowerApps for:
+* PowerApps for: (PowerApps to be uploaded later today)
    - One click join for Patient Rooms
    ![Teams Policy](/v2/Documentation/Images/PatientJoinApp.png)
    - Meeting Reset and Family Invites for Floor Staff/Adminsitrators
    ![Teams Policy](/v2/Documentation/Images/ConfigApp1.png)
    ![Teams Policy](/v2/Documentation/Images/ConfigApp2.png)
 
-Check back here soon for updates!
-
-
-
-# Virtual Rounding using Microsoft Teams
-
-_Version: 2.0
-Updated 4/14/2020_
+_Updated 4/14/2020_
 
 For deployment assistance, questions or comments, please fill out [this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR6mlTNdIzWRKq7zcu5h9FqNUMVoxSU0yS0hCSVhKMkxRREZaVE1IRU8wVy4u). Someone from Microsoft will reach out as soon as possible.
 
