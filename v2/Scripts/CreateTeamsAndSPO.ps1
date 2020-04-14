@@ -43,15 +43,15 @@ Function Test-Existence {
         $value,
         $errorMsg
     )
-    try{
-        if($value){
+    try {
+        if ($value) {
             return $true
         }
-        else{
+        else {
             throw $errorMsg
         }
     }
-    catch{
+    catch {
         Write-Error  $_
     }
 }
@@ -63,30 +63,30 @@ Function Ask-User {
     )
     Write-Host ($prompt + " (Default is Yes)") -ForegroundColor Yellow
     $readHost = Read-Host " ( y / n )"
-    Switch ($readHost){
-        Y {return $true} 
-        N {return $false} 
-        Default {return $true}
+    Switch ($readHost) {
+        Y { return $true } 
+        N { return $false } 
+        Default { return $true }
     }
 }
 #-------------------------Script Setup-------------------------#
-if (!$useMFA) {$creds = Get-Credential -Message 'Please sign in to your Global Admin account:' -UserName $adminUPN}
+if (!$useMFA) { $creds = Get-Credential -Message 'Please sign in to your Global Admin account:' -UserName $adminUPN }
 
-Test-Existence((Get-Module AzureAD-Preview),'The AzureAD Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
+Test-Existence((Get-Module AzureAD-Preview), 'The AzureAD Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
 Import-Module AzureAD
-if ($useMFA) {Connect-AzureAD -ErrorAction Stop}
-else {Connect-AzureAD -Credential $creds -ErrorAction Stop}
+if ($useMFA) { Connect-AzureAD -ErrorAction Stop }
+else { Connect-AzureAD -Credential $creds -ErrorAction Stop }
 
 $groupOwner = $adminUPN
 $sharepointMasterSiteNameShort = $sharepointMasterSiteName.replace(" ", "")
 $SharePointMasterSiteURL = $sharepointBaseUrl + "sites/" + $sharepointMasterSiteNameShort
 
-Test-Existence((Get-Module MicrosofTeams),'The MicrosoftTeams Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
+Test-Existence((Get-Module MicrosofTeams), 'The MicrosoftTeams Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
 Import-Module MicrosoftTeams
-if ($useMFA) {Connect-MicrosoftTeams -ErrorAction Stop}
-else {Connect-MicrosoftTeams -Credential $creds -ErrorAction Stop}
+if ($useMFA) { Connect-MicrosoftTeams -ErrorAction Stop }
+else { Connect-MicrosoftTeams -Credential $creds -ErrorAction Stop }
 
-Test-Existence((Get-Module SharePointPnPPowerShellOnline),'The SharePointPnPPowerShellOnline Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
+Test-Existence((Get-Module SharePointPnPPowerShellOnline), 'The SharePointPnPPowerShellOnline Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
 Import-Module SharePointPnPPowerShellOnline -WarningAction SilentlyContinue #Always outputs warning due to unapproved verbs
 
 #Import CSV of Teams
@@ -107,6 +107,10 @@ $ReqTokenBody = @{
     Client_Secret = $clientSecret
 } 
 $TokenResponse = Invoke-RestMethod -Uri "https://login.microsoftonline.com/$TenantName/oauth2/v2.0/token" -Method POST -Body $ReqTokenBody
+
+Write-Host "Connecting to SharePoint Online: $teamSpoUrl" -ForegroundColor Green
+if ($useMFA) { Connect-PnPOnline -Url $teamSpoUrl -UseWebLogin -ErrorAction Stop }
+else { Connect-PnPOnline -Url $teamSpoUrl -Credential $creds -ErrorAction Stop }
 
 #-----------------Create Teams and add Members-----------------#
 foreach ($location in $locationsList) {
@@ -134,7 +138,7 @@ foreach ($location in $locationsList) {
         $groupName = $location.MembersGroupName
         $groupID = (Get-AzureADGroup -Filter "DisplayName eq '$groupName'").ObjectID
         #Ask for new Group Name if none or more than one were found
-        while (!($groupID) -or ($groupID.count -gt 1)){
+        while (!($groupID) -or ($groupID.count -gt 1)) {
             $userOption = Ask-User("Unable to find Azure AD Group with the exact namne of '$groupName', or found multiple. Would you like to cancel or specify a new group name?")
             if ($userOption -eq $false) { Write-Host "Script stopping by user request" -ForegroundColor Red -ErrorAction Stop }
             else {
@@ -152,9 +156,6 @@ foreach ($location in $locationsList) {
 
 foreach ($sublocation in $sublocationsList) {
     #--------------Add Views to List----------------#
-    Write-Host "Connecting to SharePoint Online" -ForegroundColor Green
-    if ($useMFA) { Connect-PnPOnline -Url $SharePointMasterSiteURL -UseWebLogin }
-    else { Connect-PnPOnline -Url $SharePointMasterSiteURL -Credential $creds }
     $list = "Lists/" + $sharepointMasterListName
     $teamShortName = $location.LocationName.replace(' ', '')
     $viewName = $teamShortName + "-" + $sublocation.LocationSubName
@@ -163,7 +164,7 @@ foreach ($sublocation in $sublocationsList) {
     Write-Host "Pausing for 20 seconds for provisioning." -ForegroundColor Green
     Start-Sleep -Seconds 20
     $view = $null
-    while(!$view){
+    while (!$view) {
         try {
             $view = Get-PnPView -List $list -Identity $viewName
         }
@@ -177,9 +178,9 @@ foreach ($sublocation in $sublocationsList) {
     $view.Context.ExecuteQuery()
     $viewUrl = ($teamSpoUrl + "/" + $list + "/" + $viewName + ".aspx") #FIXTHIS
     $viewUrlEncoded = [System.Web.HTTPUtility]::UrlEncode($viewUrl)
-    $viewUrl = $viewUrl.replace(" ","%20") #Needs to be after the encoding step otherwise encoding will encode the '%' symbol
+    $viewUrl = $viewUrl.replace(" ", "%20") #Needs to be after the encoding step otherwise encoding will encode the '%' symbol
     Write-Host "Disconnecting SharePoint Online" -ForegroundColor Green
-    Disconnect-PnPOnline
+    
     #-------------------Create Channels------------------------#
     #Create Channel
     Write-Host "Creating channel '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
@@ -214,3 +215,7 @@ foreach ($sublocation in $sublocationsList) {
     $wikiApiUrl = ("https://graph.microsoft.com/beta/teams/" + $teamID + "/channels/" + $newChannel.id + "/tabs/" + $wikiID)
     Invoke-RestMethod -Headers @{Authorization = "Bearer $($Tokenresponse.access_token)" } -Uri $wikiApiUrl -Method DELETE -ContentType 'application/json'
 }
+
+Disconnect-PnPOnline
+
+Write-Host "Script Complete." -ForegroundColor Green

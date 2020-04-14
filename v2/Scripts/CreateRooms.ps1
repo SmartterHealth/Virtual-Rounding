@@ -100,7 +100,7 @@ foreach ($account in $accountList){
     }
 }
 #Wait for licensing application and Teams/Exchange provisioning
-Write-Host "Script will now pause for 15 minutes to allow for licensing application and Teams/Exchange provisioning of new accounts" -ForegroundColor Green
+Write-Host "Script will now pause for 15 minutes to allow for licensing application and Teams/Exchange provisioning of new accounts. Check https://admin.microsoft.com/AdminPortal/Home#/teamsprovisioning to verify status." -ForegroundColor Green
 Start-Sleep -Seconds 900 #15 minutes
 
 #---------------------Apply Teams Policies---------------------#
@@ -135,3 +135,4 @@ foreach ($account in $accountList){
     Grant-CsTeamsUpgradePolicy -Identity $upn -PolicyName UpgradeToTeams #Sets account to Teams Only mode
 }
 
+Write-Host "Script Complete." -ForegroundColor Green

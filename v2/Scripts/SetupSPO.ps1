@@ -178,3 +178,5 @@ while (!$newContentType) {
 }
 
 Disconnect-PnPOnline
+
+Write-Host "Script Complete." -ForegroundColor Green
