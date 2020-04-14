@@ -18,7 +18,7 @@ Please see https://aka.ms/virtualroundingcode
 #>
 
 #-------------------Configurable Variables---------------------#
-$configFilePath = ".\Scripts\RunningConfig.json"
+$configFilePath = "C:\Users\mafritz\OneDrive - Microsoft\Documents\GitHub\Virtual-Rounding\v2\Scripts\RunningConfig.json"
 
 #--------------System Variables (DO NOT MODIFY)----------------#
 $configFile = Get-Content -Path $configFilePath | ConvertFrom-Json
@@ -60,8 +60,8 @@ Function Test-Existence {
 #-------------------------Script Setup-------------------------#
 if (!$useMFA) {$creds = Get-Credential -Message 'Please sign in to your Global Admin account:' -UserName $adminUPN}
 
-Test-Existence((Get-Module AzureAD-Preview),'The AzureAD Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
-Import-Module AzureAD
+Test-Existence((Get-Module AzureAD),'The AzureAD Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
+Import-Module AzureADPreview
 if ($useMFA) {Connect-AzureAD -ErrorAction Stop}
 else {Connect-AzureAD -Credential $creds -ErrorAction Stop}
 
@@ -70,7 +70,7 @@ Import-Module SkypeOnlineConnector
 
 $roomsGroupID = (Get-AzureADGroup -Filter "DisplayName eq '$roomsGroupName'").objectID
 $existingGroupMembers = Get-AzureADGroupMember -ObjectId $roomsGroupID
-$accountList = Import-Csv -Path $roomListCsvFilePath
+$accountList = Import-Csv -Path $roomListCsvFilePath -ErrorAction Stop
 
 #-----------Create user accounts and apply licensing-----------#
 foreach ($account in $accountList){
@@ -120,9 +120,10 @@ foreach ($account in $accountList){
             W {Write-host "Wait 15 more minutes"; Start-Sleep -Seconds 900} 
             S {Write-Host "Skip $upn"; $skip = $true; Continue} 
             C {Write-Host "Cancel Script"; break} 
-            Default {Write-Host "Wait 15 more minutes"; Start-Sleep -Seconds 900}
+            Default {Write-Host "Waiting 15 more minutes" -ForegroundColor Green; Start-Sleep -Seconds 900}
         }
         if($skip){Continue}
+        $user = Get-CsOnlineUser -Identity $upn -ErrorAction SilentlyContinue
     }
     if($skip){Continue}
     Grant-CsTeamsAppPermissionPolicy -Identity $upn -PolicyName $appPermissionPolicy

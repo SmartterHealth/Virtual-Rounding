@@ -22,6 +22,7 @@ $configFile = Get-Content -Path $configFilePath | ConvertFrom-Json
 
 $sharepointBaseUrl = $configFile.TenantInfo.SPOBaseUrl
 $sharepointMasterSiteName = $configFile.TenantInfo.SPOMasterSiteName
+$sharepointMasterListName = $configFile.TenantInfo.SPOMasterListName
 
 $useMFA = $configFile.TenantInfo.MFARequired
 $adminUPN = $configFile.TenantInfo.GlobalAdminUPN
@@ -61,11 +62,6 @@ Function Ask-User {
 }
 #-------------------------Script Setup-------------------------#
 if (!$useMFA) { $creds = Get-Credential -Message 'Please sign in to your Global Admin account:' -UserName $adminUPN }
-
-Check-Module((Get-Module AzureAD), 'The AzureAD Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
-Import-Module AzureADPreview
-if ($useMFA) { Connect-AzureAD -ErrorAction Stop }
-else { Connect-AzureAD -Credential $creds -ErrorAction Stop }
 
 Check-Module((Get-Module SharePointPnPPowerShellOnline), 'The SharePointPnPPowerShellOnline Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
 Import-Module SharePointPnPPowerShellOnline
@@ -133,21 +129,22 @@ while (!$contentType) {
 Add-PnPFieldToContentType -Field "RoomLocation" -ContentType $contentType
 Add-PnPFieldToContentType -Field "RoomSubLocation" -ContentType $contentType
 Add-PnPFieldToContentType -Field "MeetingLink" -ContentType $contentType
-Add-PnPFieldToContentType -Field "EventID" -ContentType $contentType -Hidden $true
-Add-PnPFieldToContentType -Field "SharetoFamily" -ContentType $contentType
-Add-PnPFieldToContentType -Field "ResetMeeting" -ContentType $contentType
+Add-PnPFieldToContentType -Field "EventID" -ContentType $contentType
+Add-PnPFieldToContentType -Field "Share Externally" -ContentType $contentType
+Add-PnPFieldToContentType -Field "Reset Room" -ContentType $contentType
 Add-PnPFieldToContentType -Field "LastReset" -ContentType $contentType
-Add-PnPFieldToContentType -Field "FamilyInvited" -ContentType $contentType
-Add-PnPFieldToContentType -Field "LastFamilyInvite" -ContentType $contentType
-Add-PnPFieldToContentType -Field "RoomUPN" -ContentType $contentType -Hidden $true
-Disconnect-PnPOnline
+Add-PnPFieldToContentType -Field "SharedWith" -ContentType $contentType
+Add-PnPFieldToContentType -Field "LastShare" -ContentType $contentType
+Add-PnPFieldToContentType -Field "RoomUPN" -ContentType $contentType
 
-Write-Host "Creating SharePoint List 'Virtual Rounding'." -ForegroundColor Green
-New-PnPList -Title "Virtual Rounding" -Url "Lists/VirtualRounding" -Template GenericList
+Write-Host "Creating SharePoint List '$sharepointMasterListName'." -ForegroundColor Green
+$listShortName = $sharepointMasterListName.replace(" ","")
+$listUrl = "Lists/$listShortName"
+New-PnPList -Title $sharepointMasterListName -Url $listUrl -Template GenericList
 Start-Sleep -Seconds 5
 while (!$list) {
     try {
-        $list = Get-PnPList -Identity ("Lists/VirtualRounding")
+        $list = Get-PnPList -Identity $listUrl
     }
     catch {
         Write-Host "List is not provisioned yet. Waiting 1 minute for provisioning. This will repeat each minute until ready." -ForegroundColor Yellow
@@ -155,9 +152,9 @@ while (!$list) {
     }
 }
 
-Write-Host "Enabling Content Types for SharePoint List '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
-Set-PnPList -Identity $sublocationShortName -EnableContentTypes $true
-Write-Host "Adding 'VirtualRoundingRoom' Content Type to SharePoint List '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
+Write-Host "Enabling Content Types for SharePoint List '$sharepointMasterListName'." -ForegroundColor Green
+Set-PnPList -Identity $list -EnableContentTypes $true
+Write-Host "Adding 'VirtualRoundingRoom' Content Type to SharePoint List '$sharepointMasterListName'." -ForegroundColor Green
 Add-PnPContentTypeToList -List $list -ContentType $contentType -DefaultContentType -ErrorAction SilentlyContinue | Out-Null #Bug in PnP cmdlet, so SilentlyContinue required
 $newContentType = $null
 while (!$newContentType) {

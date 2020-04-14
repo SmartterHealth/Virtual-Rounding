@@ -17,7 +17,7 @@ Please see https://aka.ms/virtualroundingcode
 #>
 
 #--------------------------Variables---------------------------#
-$configFilePath = ".\Scripts\RunningConfig.json"
+$configFilePath = "C:\Users\mafritz\OneDrive - Microsoft\Documents\GitHub\Virtual-Rounding\v2\Scripts\RunningConfig.json"
 $configFile = Get-Content -Path $configFilePath | ConvertFrom-Json
 
 $locationsCsvFile = $configFile.LocationCsvPaths.Locations
@@ -32,6 +32,7 @@ $sharepointBaseUrl = $configFile.TenantInfo.SPOBaseUrl
 $sharepointMasterSiteName = $configFile.TenantInfo.SPOMasterSiteName
 $sharepointMasterListName = $configFile.TenantInfo.SPOMasterListName
 $tabName = $configFile.TeamsInfo.TabName
+$shareTabName = $configFile.TeamsInfo.ShareTabName
 
 $useMFA = $configFile.TenantInfo.MFARequired
 $adminUPN = $configFile.TenantInfo.GlobalAdminUPN
@@ -73,7 +74,7 @@ Function Ask-User {
 if (!$useMFA) { $creds = Get-Credential -Message 'Please sign in to your Global Admin account:' -UserName $adminUPN }
 
 Test-Existence((Get-Module AzureAD-Preview), 'The AzureAD Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
-Import-Module AzureAD
+Import-Module AzureADPreview
 if ($useMFA) { Connect-AzureAD -ErrorAction Stop }
 else { Connect-AzureAD -Credential $creds -ErrorAction Stop }
 
@@ -108,10 +109,10 @@ $ReqTokenBody = @{
 } 
 $TokenResponse = Invoke-RestMethod -Uri "https://login.microsoftonline.com/$TenantName/oauth2/v2.0/token" -Method POST -Body $ReqTokenBody
 
-Write-Host "Connecting to SharePoint Online: $teamSpoUrl" -ForegroundColor Green
-if ($useMFA) { Connect-PnPOnline -Url $teamSpoUrl -UseWebLogin -ErrorAction Stop }
-else { Connect-PnPOnline -Url $teamSpoUrl -Credential $creds -ErrorAction Stop }
-
+Write-Host "Connecting to SharePoint Online" -ForegroundColor Green
+if ($useMFA) { Connect-PnPOnline -Url $SharePointMasterSiteURL -UseWebLogin -ErrorAction Stop }
+else { Connect-PnPOnline -Url $SharePointMasterSiteURL -Credential $creds -ErrorAction Stop }
+<##
 #-----------------Create Teams and add Members-----------------#
 foreach ($location in $locationsList) {
     #Create Team with policies
@@ -136,33 +137,40 @@ foreach ($location in $locationsList) {
             $teamID = (Get-AzureADGroup -Filter "DisplayName eq '$teamName'").ObjectID
         }
         $groupName = $location.MembersGroupName
-        $groupID = (Get-AzureADGroup -Filter "DisplayName eq '$groupName'").ObjectID
-        #Ask for new Group Name if none or more than one were found
-        while (!($groupID) -or ($groupID.count -gt 1)) {
-            $userOption = Ask-User("Unable to find Azure AD Group with the exact namne of '$groupName', or found multiple. Would you like to cancel or specify a new group name?")
-            if ($userOption -eq $false) { Write-Host "Script stopping by user request" -ForegroundColor Red -ErrorAction Stop }
-            else {
-                $groupName = Read-Host "Exact Group Name of users to be added to '$teamName' Team:"
-                $groupID = (Get-AzureADGroup -Filter "DisplayName eq '$groupName'").ObjectID
+        if ($groupName -ne "") {
+            $groupID = (Get-AzureADGroup -Filter "DisplayName eq '$groupName'").ObjectID
+            #Ask for new Group Name if none or more than one were found
+            while (!($groupID) -or ($groupID.count -gt 1)) {
+                $userOption = Ask-User("Unable to find Azure AD Group with the exact namne of '$groupName', or found multiple. Would you like to cancel or specify a new group name?")
+                if ($userOption -eq $false) { Write-Host "Script stopping by user request" -ForegroundColor Red -ErrorAction Stop }
+                else {
+                    $groupName = Read-Host "Exact Group Name of users to be added to '$teamName' Team:"
+                    $groupID = (Get-AzureADGroup -Filter "DisplayName eq '$groupName'").ObjectID
+                }
             }
-        }
-        $groupMembers = Get-AzureADGroupMember -ObjectId $groupID
-        Write-Host "Adding Group Membership to '$teamName' team." -ForegroundColor Green
-        foreach ($member in $groupMembers) {
-            Add-AzureADGroupMember -ObjectId $teamID -RefObjectId $member.ObjectID -ErrorAction SilentlyContinue #silentlycontinue if user is already in the Team
+            $groupMembers = Get-AzureADGroupMember -ObjectId $groupID
+            Write-Host "Adding Group Membership to '$teamName' team." -ForegroundColor Green
+            foreach ($member in $groupMembers) {
+                Add-AzureADGroupMember -ObjectId $teamID -RefObjectId $member.ObjectID -ErrorAction SilentlyContinue #silentlycontinue if user is already in the Team
+            }
         }
     }
 }
-
+#>
 foreach ($sublocation in $sublocationsList) {
     #--------------Add Views to List----------------#
-    $list = "Lists/" + $sharepointMasterListName
-    $teamName = $location.LocationName
+    $list = "Lists/" + $sharepointMasterListName.replace(' ', '')
+    $locationName = $sublocation.LocationName
+    $teamName = $sublocation.LocationName + " " + $teamNameSuffix 
     $teamID = (Get-AzureADGroup -Filter "DisplayName eq '$teamName'").ObjectID
-    $teamShortName = $teamName.replace(' ', '')
-    $viewName = $teamShortName + "-" + $sublocation.LocationSubName
+    $teamShortName = $locationName.replace(' ', '')
+    $subLocationName = $sublocation.LocationSubName
+    $subShortName = $sublocationName.replace(' ', '')
+    $viewName = $teamShortName + "-" + $subShortName
+    $viewQuery = "<OrderBy><FieldRef Name='ID' /></OrderBy><Where><And><Eq><FieldRef Name='RoomLocation'/><Value Type='Text'>$locationName</Value></Eq><Eq><FieldRef Name='RoomSubLocation' /><Value Type='Text'>$subLocationName</Value></Eq></And></Where>"
     Write-Host "Adding '$viewName' View to Master SharePoint List." -ForegroundColor Green
-    Add-PnPView -List $list -Title $viewName -SetAsDefault -Fields Title, RoomLocation, RoomSubLocation, MeetingLink -ErrorAction SilentlyContinue | Out-Null #Bug in PnP cmdlet, so siletlycontinue required
+    Add-PnPView -List $list -Title $viewName -Fields Title, RoomLocation, RoomSubLocation, MeetingLink -Query $viewQuery -ErrorAction SilentlyContinue | Out-Null #Bug in PnP cmdlet, so siletlycontinue required
+    Add-PnPView -List $list -Title ($viewName + "-Share") -Fields Title, RoomLocation, "Share Externally", "Reset Room", SharedWith, LastReset -Query $viewQuery -ErrorAction SilentlyContinue | Out-Null #Bug in PnP cmdlet, so siletlycontinue required
     Write-Host "Pausing for 20 seconds for provisioning." -ForegroundColor Green
     Start-Sleep -Seconds 20
     $view = $null
@@ -177,12 +185,15 @@ foreach ($sublocation in $sublocationsList) {
     }
     $view.CustomFormatter = $jsonContent
     $view.Update()
-    $view.Context.ExecuteQuery()
-    $viewUrl = ($teamSpoUrl + "/" + $list + "/" + $viewName + ".aspx")
+    $view.Context.ExecuteQuery()#
+    $viewUrl = ($SharePointMasterSiteURL + "/" + $list + "/" + $viewName + ".aspx").Replace("-","")
+    $viewUrl2 = ($SharePointMasterSiteURL + "/" + $list + "/" + ($viewName + "-Share") + ".aspx").Replace("-","")
     $viewUrlEncoded = [System.Web.HTTPUtility]::UrlEncode($viewUrl)
+    $viewUrlEncoded2 = [System.Web.HTTPUtility]::UrlEncode($viewUrl2)
     $viewUrl = $viewUrl.replace(" ", "%20") #Needs to be after the encoding step otherwise encoding will encode the '%' symbol
+    $viewUrl2 = $viewUrl2.replace(" ", "%20") #Needs to be after the encoding step otherwise encoding will encode the '%' symbol
     Write-Host "Disconnecting SharePoint Online" -ForegroundColor Green
-    
+   
     #-------------------Create Channels------------------------#
     #Create Channel
     Write-Host "Creating channel '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
@@ -193,7 +204,7 @@ foreach ($sublocation in $sublocationsList) {
     $newChannel = Invoke-RestMethod -Headers @{Authorization = "Bearer $($Tokenresponse.access_token)" } -Uri $channelApiUrl -Body $channelBody -Method Post -ContentType 'application/json'
     
     #Add SPO List as Tab
-    Write-Host "Adding 'Join a Room' tab to channel '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
+    Write-Host "Adding '$tabName' tab to channel '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
     $tabApiUrl = ("https://graph.microsoft.com/beta/teams/" + $teamID + "/channels/" + $newChannel.id + "/tabs")
     $tabBody = @"
         {
@@ -201,13 +212,31 @@ foreach ($sublocation in $sublocationsList) {
             "teamsApp@odata.bind" : "https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/2a527703-1f6f-4559-a332-d8a7d288cd88",
             "configuration": {
               "entityId": "",
-              "contentUrl": "$teamSpoUrl/_layouts/15/teamslogon.aspx?spfx=true&dest=$viewUrlEncoded",
+              "contentUrl": "$SharePointMasterSiteURL/_layouts/15/teamslogon.aspx?spfx=true&dest=$viewUrlEncoded",
               "websiteUrl": "$viewUrl",
               "removeUrl": null
             }
         }
 "@
     Invoke-RestMethod -Headers @{Authorization = "Bearer $($Tokenresponse.access_token)" } -Uri $tabApiUrl -Body $tabBody -Method Post -ContentType 'application/json'
+
+    #Add SPO List as Tab
+    Write-Host "Adding '$sharetabName' tab to channel '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
+    $tabApiUrl = ("https://graph.microsoft.com/beta/teams/" + $teamID + "/channels/" + $newChannel.id + "/tabs")
+    $tabBody = @"
+            {
+                "displayName": "$sharetabName",
+                "teamsApp@odata.bind" : "https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/2a527703-1f6f-4559-a332-d8a7d288cd88",
+                "configuration": {
+                  "entityId": "",
+                  "contentUrl": "$SharePointMasterSiteURL/_layouts/15/teamslogon.aspx?spfx=true&dest=$viewUrlEncoded2",
+                  "websiteUrl": "$viewUrl2",
+                  "removeUrl": null
+                }
+            }
+"@
+    Invoke-RestMethod -Headers @{Authorization = "Bearer $($Tokenresponse.access_token)" } -Uri $tabApiUrl -Body $tabBody -Method Post -ContentType 'application/json'
+    
     
     #Get Wiki Tab
     Write-Host "Removing 'Wiki' tab from channel '$sublocationName' in the '$teamName' Team." -ForegroundColor Green

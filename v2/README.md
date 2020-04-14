@@ -72,7 +72,6 @@ Doctors will not be directly invited to any meetings, but instead have access to
 
 # Configuration
 
-All configuration steps below assume that you would like to set this up at scale with a large amount of accounts. If you would like to test out the solution or POC with a smaller amount of user accounts, no scripting or Power Automate is needed. Simply follow along but skip running scripts/flows and instead manually complete the same steps that are listed for each script/flow.
 
 ## Create Teams Policies
 
@@ -113,9 +112,31 @@ For various steps in this process we will need to call the Microsoft Graph. To d
 13. Provide a description and select an expiry time for the secret and click &quot;Add&quot;.
 14. Note down the secret Value.
 
+## SharePoint Site/List Account Setup
+
+In this repository is a PowerShell script (SetupSPO.ps1) that:
+
+1. Creates a SharePoint Site
+2. Creates a list
+3. Adds custom columns and content type to list.
+
+Before running this script, you will need the following:
+
+- A Global Admin Account
+- SharePoint Online PnP PowerShell: [https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets?view=sharepoint-ps](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets?view=sharepoint-ps)
+
+### Script
+
+All variables and supporting files will need to be specified in the RunningConfig.json file you can find in this repository. The only varialbe the script needs configured manually is the location of that JSON configuration file.
+
+Once the above is ready, you can run SetupSPO.ps1. As with all open source scripts, please test and review before running in your production environment.
+
+When prompted, sign in with global administrator credentials.
+
+
 ## Patient Room Account Setup
 
-In this repository is a PowerShell script that:
+In this repository is a PowerShell script (CreateRooms.ps1) that:
 
 1. Creates the accounts
 2. Adds the account to a group (for tracking and group based licensing)
@@ -155,30 +176,21 @@ Once the above is ready, you can run CreateRooms.ps1. As with all open source sc
 
 When prompted, sign in with administrator credentials that are able to create Azure AD accounts and assign Teams policies.
 
-## Team/List/Tab Creation
+## Team/Channel/Tab Creation (Optional)
 
-Depending on your setup, you may want one Team or multiple Teams for Doctors to use to navigate and join the Patient Room meetings.
-
-We recommend a single Team with Channels for each location involved so that Doctors are able to join any room at any location during a Time of crisis. This is the method that will be covered and supported in this guide.
-
-If doctor&#39;s should only be able to join rooms at specific locations (hospitals/clinics), we recommend separate teams per location, or a single Team with _Private_ Channels for each location involved. This guide does not cover that method at this time however, and you will need to adapt to your needs. This will be added to the guide at a different time.
-
-In SharePoint, we will be leveraging SharePoint lists to store and surface the meeting join links. This guide will cover creating multiple SharePoint lists, one for each location, and having them added as Tabs to the associated channel. Each list will also get a custom view applied.
+If you chose to use Teams and Channels to for providers to join/configure meetings/rooms, use this section. Otherwise, proceed to the next section.
 
 ### Script
 
-In this repository is a PowerShell Script (CreateTeamsAndSPO.ps1) that:
+In this repository is a PowerShell Script (CreateTeamsAndChannels.ps1) that:
 
 1. Creates the Team
 2. Sets Team Settings:
   i. Visibility: Private
   ii. Disables member capabilities: Add/Remove Apps, Create/Update/Remove Channels, Create/Update/Remove Connectors, Create/Update/Remove Tabs
 3. Adds members to Team
-4. Creates SharePoint Lists in the associated SharePoint site
-5. Adds columns and custom view to lists
-   i. Columns: Title (exists by default), RoomLocation, RoomSubLocation, MeetingLink, EventID(skip if provisioning manually).
-   ii. View: (Create a new view)[https://support.office.com/en-us/article/Create-change-or-delete-a-view-of-a-list-or-library-27AE65B8-BC5B-4949-B29B-4EE87144A9C9] and then (add in the JSON)[https://support.microsoft.com/en-us/office/formatting-list-views-f737fb8b-afb7-45b9-b9b5-4505d4427dd1?ui=en-us&rs=en-us&ad=us] from SharePointViewFormatting.json
-6. Creates Channels and pins the SharePoint list as a Tab
+4. Creates Custom Views in the master SharePoint list for each sublocation
+6. Creates Channels and pins the SharePoint list view as a Tab
 7. Removes Wiki Tabs
 
 Before running this script, you will need the following:
