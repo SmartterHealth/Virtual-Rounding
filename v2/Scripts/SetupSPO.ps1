@@ -17,17 +17,14 @@ Please see https://aka.ms/virtualroundingcode
 #>
 
 #--------------------------Variables---------------------------#
-$configFilePath = ".\Scripts\RunningConfig.json"
+$configFilePath = "C:\Users\mafritz\OneDrive - Microsoft\Documents\GitHub\Virtual-Rounding\v2\Scripts\RunningConfig.json"
 $configFile = Get-Content -Path $configFilePath | ConvertFrom-Json
 
-$spviewJsonFilePath = $configFile.ViewJson.SPViewJsonFilePath
 $sharepointBaseUrl = $configFile.TenantInfo.SPOBaseUrl
 $sharepointMasterSiteName = $configFile.TenantInfo.SPOMasterSiteName
 
 $useMFA = $configFile.TenantInfo.MFARequired
 $adminUPN = $configFile.TenantInfo.GlobalAdminUPN
-
-#if (!$useMFa -or !$adminUPN) { Write-Host "Missing JSON values" } #FINISHME
 
 #--------------------------Functions---------------------------#
 Function Check-Module {
@@ -65,19 +62,15 @@ Function Ask-User {
 #-------------------------Script Setup-------------------------#
 if (!$useMFA) { $creds = Get-Credential -Message 'Please sign in to your Global Admin account:' -UserName $adminUPN }
 
-Check-Module((Get-Module AzureAD-Preview), 'The AzureAD Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
-Import-Module AzureAD
+Check-Module((Get-Module AzureAD), 'The AzureAD Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
+Import-Module AzureADPreview
 if ($useMFA) { Connect-AzureAD -ErrorAction Stop }
 else { Connect-AzureAD -Credential $creds -ErrorAction Stop }
 
 Check-Module((Get-Module SharePointPnPPowerShellOnline), 'The SharePointPnPPowerShellOnline Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
 Import-Module SharePointPnPPowerShellOnline
 
-#Import JSON formatting file
-$jsonContent = Get-Content $spviewJsonFilePath
-$jsonContent | ConvertFrom-Json | Out-Null
-
-#-----------------Create Teams and add Members-----------------#
+#-----------------Create Site and List-----------------#
 Write-Host "Connecting to SharePoint Online" -ForegroundColor Green
 if ($useMFA) { Connect-PnPOnline -Url $sharepointBaseUrl -UseWebLogin }
 else { Connect-PnPOnline -Url $sharepointBaseUrl -Credential $creds }
@@ -97,7 +90,7 @@ $sharepointMasterSiteNameShort = $sharepointMasterSiteName.replace(" ", "")
 $SharePointMasterSiteURL = $sharepointBaseUrl + "sites/" + $sharepointMasterSiteNameShort
 
 Write-Host "Creating Site '$sharepointMasterSiteName'" -ForegroundColor Green
-New-SPOTenantSite -Title $sharepointMasterSiteName -Url $SharePointMasterSiteURL -Owner $adminUPN -TimeZone 11
+New-PnPTenantSite -Title $sharepointMasterSiteName -Url $SharePointMasterSiteURL -Owner $adminUPN -TimeZone 11 -ErrorAction Stop
 
 Write-Host "Connecting to Site '$sharepointMasterSiteName'" -ForegroundColor Green
 $siteReady = $false
@@ -161,7 +154,7 @@ while (!$list) {
         Start-Sleep 60
     }
 }
-}
+
 Write-Host "Enabling Content Types for SharePoint List '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
 Set-PnPList -Identity $sublocationShortName -EnableContentTypes $true
 Write-Host "Adding 'VirtualRoundingRoom' Content Type to SharePoint List '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
