@@ -123,6 +123,7 @@ foreach ($account in $accountList){
             Default {Write-Host "Wait 15 more minutes"; Start-Sleep -Seconds 900}
         }
         if($skip){Continue}
+        $user = Get-CsOnlineUser -Identity $upn -ErrorAction SilentlyContinue
     }
     if($skip){Continue}
     Grant-CsTeamsAppPermissionPolicy -Identity $upn -PolicyName $appPermissionPolicy
