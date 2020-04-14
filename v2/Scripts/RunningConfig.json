@@ -28,11 +28,6 @@
     {
         "RoundingTeamSuffix":"Virtual Rounding"
     },
-    "TimeZoneInfo":
-    {
-        "UTCOffset": "-4",
-        "TimeZoneName": "Eastern Standard Time"
-    },
     "TeamsInfo":
     {
         "tabName": "Join a Room",
