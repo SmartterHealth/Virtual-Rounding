@@ -123,7 +123,6 @@ Add-PnPField -Type Text -InternalName "Share Externally" -DisplayName "Share Ext
 Add-PnPField -Type Text -InternalName "Reset Room" -DisplayName "Reset Room" -Group "VirtualRounding"
 Add-PnPField -Type DateTime -InternalName "LastReset" -DisplayName "Last Reset" -Group "VirtualRounding"
 Add-PnPField -Type Number -InternalName "SharedWith" -DisplayName "Shared With" -Group "VirtualRounding"
-#Set-PnPDefaultColumnValues
 Add-PnPField -Type DateTime -InternalName "LastShare" -DisplayName "Last Share" -Group "VirtualRounding"
 Add-PnPField -Type Text -InternalName "RoomUPN" -DisplayName "Room UPN" -Group "VirtualRounding"
 Add-PnPContentType -Name "VirtualRoundingRoom" -Group "VirtualRounding" | Out-Null

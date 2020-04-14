@@ -134,3 +134,4 @@ foreach ($account in $accountList){
     Grant-CsTeamsChannelsPolicy -Identity $upn -PolicyName $teamsPolicy
     Grant-CsTeamsUpgradePolicy -Identity $upn -PolicyName UpgradeToTeams #Sets account to Teams Only mode
 }
+
