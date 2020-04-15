@@ -5,7 +5,8 @@ Version 2 Scripts, Flows, and PowerApps are all ready for use. This documentatio
 
 Version 2 includes the following improved features:
 * Ability to invite family/friends
-* Unified SharePoint List that contains all rooms and links, with views for each sublocation/location still added as tabs in Teams
+* Unified SharePoint List that contains all rooms and links
+   - With views for each sublocation/location still added as tabs in Teams (optional)
 * PowerApps for:
    - One click join for Patient Rooms
    >![Teams Policy](/v2/Documentation/Images/PatientJoinApp.png)
