@@ -331,7 +331,7 @@ Instructions:
 ## Patient Join App
 Upload the Patient Join App to PowerApps. The connection to the master SharePoint list in both the PowerApp and the associated flow will need to be updated for proper functionality.
 
-This app then should be published in Teams, and set as the only pinned app in the Teams App Setup policy you have configured for the Patient Room accounts.
+This app then should be published installed on the device.
 
 These instructions will be defined in more detail soon. Please work with a Microsoft Partner in the meantime.
 
