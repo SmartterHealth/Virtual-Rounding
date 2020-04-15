@@ -1,5 +1,5 @@
 # Virtual Rounding using Microsoft Teams v2
-_Updated 4/14/2020_
+_Updated 4/15/2020_
 
 Version 2 Scripts, Flows, and PowerApps are all ready for use. This documentation will be improved over the next few days.
 
@@ -8,12 +8,12 @@ Version 2 includes the following improved features:
 * Unified SharePoint List that contains all rooms and links, with views for each sublocation/location still added as tabs in Teams
 * PowerApps for:
    - One click join for Patient Rooms
-   ![Teams Policy](/v2/Documentation/Images/PatientJoinApp.png)
-   ![Teams Policy](/v2/Documentation/Images/PatientJoinApp2.png)
+   >![Teams Policy](/v2/Documentation/Images/PatientJoinApp.png)
+   >![Teams Policy](/v2/Documentation/Images/PatientJoinApp2.png)
    - Meeting Join and Configuration for Providers
-   ![Teams Policy](/v2/Documentation/Images/VRApp1.png)
-   ![Teams Policy](/v2/Documentation/Images/VRApp2.png)
-   ![Teams Policy](/v2/Documentation/Images/VRApp3.png)
+   >![Teams Policy](/v2/Documentation/Images/VRApp1.png)
+   >![Teams Policy](/v2/Documentation/Images/VRApp2.png)
+   >![Teams Policy](/v2/Documentation/Images/VRApp3.png)
 
 For deployment assistance, questions or comments, please fill out [this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR6mlTNdIzWRKq7zcu5h9FqNUMVoxSU0yS0hCSVhKMkxRREZaVE1IRU8wVy4u). Someone from Microsoft will reach out as soon as possible.
 
