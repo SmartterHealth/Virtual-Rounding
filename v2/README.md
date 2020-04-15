@@ -15,8 +15,6 @@ Version 2 includes the following improved features:
    ![Teams Policy](/v2/Documentation/Images/VRApp2.png)
    ![Teams Policy](/v2/Documentation/Images/VRApp3.png)
 
-
-
 For deployment assistance, questions or comments, please fill out [this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR6mlTNdIzWRKq7zcu5h9FqNUMVoxSU0yS0hCSVhKMkxRREZaVE1IRU8wVy4u). Someone from Microsoft will reach out as soon as possible.
 
 ## Overview
@@ -39,7 +37,7 @@ Each patient room will have an associated Office 365 account, with only Microsof
 - Disable Meeting &amp; Live Event creation
 - Disable Discovery of Private Teams
 - Disable Installation/Adding Apps
-- Hide all apps except Calendar
+- Hide all apps except the Patient Join PowerApp
 - Disable Meeting Features: Meet Now, Cloud Recording, Transcription, Screen Sharing, PowerPoint Sharing, Whiteboard, Shared Notes, Anonymous user admission, Meeting Chat
 
 Each patient room will have an ongoing Teams meeting running for a long period of time (months or longer), and that meeting will be reused for that room as patients flow in and out of rooms. As noted in the known limitations, there is a 24 hour timeout; Please see that section for guidance.
@@ -243,9 +241,9 @@ Instructions:
 Once it's been at least 3 hours since you've created the room accounts, you can run the Flow to create all the meeting links. Ideally, wait at least 24 hours. This is to ensure the Teams Policies properly apply to the room accounts before a meeting is created.
 
 ## Meeting Bot
-This section covering the meeting bot is _draft_, and we recommend reaching out to your Microsoft Partner or account team for assistance with this.
+This section covering the meeting bot is _draft_, and we recommend reaching out to your Microsoft Partner or account team for assistance with this. This is a temporary workaround while Microsoft engineering works on a fix for the 30 minute timeout issue (Room sitting in meeting -> Provider Joins for a certain period of time -> Provider leaves meeting -> Meeting ends 30 minutes later if no other providers join (only one user in the meeting)).
 
-A meeting bot can be used to get around the 30 minute timeout issue mentioned in the changelog at the top of this page. The meeting bot will sit in each meeting and serve as a second meeting participant to avoid the 30 minute timeout (which starts as soon as a meeting is down to one participant). The bot is subject to the same 30 minute and 24 hour timeouts that standard accounts have. Therefore, it is crucial that patient device not hang up the meeting, as that would leave the bot as the lone participant in the meeting, starting the 30 minute timer.
+A meeting bot can be used to get around the 30 minute timeout issue. The meeting bot will sit in each meeting and serve as a second meeting participant to avoid the 30 minute timeout (which starts as soon as a meeting is down to one participant). The bot is subject to the same 30 minute and 24 hour timeouts that standard accounts have. Therefore, it is crucial that patient device not hang up the meeting, as that would leave the bot as the lone participant in the meeting, starting the 30 minute timer.
 The meeting bot is joined into a meeting using a Graph API call, which can be automated using Power Automate or PowerShell to ensure it rejoins every 24 hours, and potentially sooner depending on your needs. The below will outline the basics of the bot setup process. Ensure you have updated your Azure AD App Registration with the newly added API permissions before starting.
 
 ### Bot Configuration
@@ -327,10 +325,21 @@ Instructions:
 4. Upload AddBotToMeetingsFlow.zip
 5. Update all variables.
 
-## Meeting Updating
+# Power Apps
 
-If there is an error with a meeting link, there is a flow that can be manually run to update the link. Please note when this happens, someone will need to end the meeting on the patient room device and join the new meeting.
-Please check back here soon for the details of the flow for this purpose.
+## Patient Join App
+Upload the Patient Join App to PowerApps. The connection to the master SharePoint list in both the PowerApp and the associated flow will need to be updated for proper functionality.
+
+This app then should be published in Teams, and set as the only pinned app in the Teams App Setup policy you have configured for the Patient Room accounts.
+
+These instructions will be defined in more detail soon. Please work with a Microsoft Partner in the meantime.
+
+## Virtual Rounding App
+Upload the Patient Join App to PowerApps. The connection to the master SharePoint list in the PowerApp and the associated flows will need to be updated for proper functionality.
+
+This app then should be published in Teams and made available to providers.
+
+These instructions will be defined in more detail soon. Please work with a Microsoft Partner in the meantime.
 
 # Security Controls
 
