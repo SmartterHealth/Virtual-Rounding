@@ -28,7 +28,7 @@ $useMFA = $configFile.TenantInfo.MFARequired
 $adminUPN = $configFile.TenantInfo.GlobalAdminUPN
 
 #--------------------------Functions---------------------------#
-Function Check-Module {
+Function Test-Module {
     [CmdletBinding()]
     param(
         $value,
@@ -47,7 +47,7 @@ Function Check-Module {
     }
 }
 
-Function Ask-User {
+Function Read-UserInput {
     [CmdletBinding()]
     param(
         $prompt
@@ -63,7 +63,7 @@ Function Ask-User {
 #-------------------------Script Setup-------------------------#
 if (!$useMFA) { $creds = Get-Credential -Message 'Please sign in to your Global Admin account:' -UserName $adminUPN }
 
-Check-Module((Get-Module SharePointPnPPowerShellOnline), 'The SharePointPnPPowerShellOnline Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
+Test-Module((Get-Module SharePointPnPPowerShellOnline), 'The SharePointPnPPowerShellOnline Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
 Import-Module SharePointPnPPowerShellOnline
 
 #-----------------Create Site and List-----------------#
@@ -74,7 +74,7 @@ else { Connect-PnPOnline -Url $sharepointBaseUrl -Credential $creds }
 $existingSite = Get-PnPSiteSearchQueryResults -Query "Title:$sharepointMasterSiteName"
 if ($existingSite) { $existingSiteTrue = $true }
 while ($existingSiteTrue -eq $true) {
-    $userOption = Ask-User("An existing site already exists with the name of '$sharepointMasterSiteName'. Would you like to cancel or specify a new site name?")
+    $userOption = Read-UserInput("An existing site already exists with the name of '$sharepointMasterSiteName'. Would you like to cancel or specify a new site name?")
     if ($userOption -eq $false) { Write-Host "Script stopping by user request" -ForegroundColor Red -ErrorAction Stop }
     else {
         $sharepointMasterSiteName = Read-Host "New Site Name:"
@@ -97,7 +97,7 @@ while ($siteReady -eq $false) {
         $siteReady = $true
     }
     catch {
-        $userOption2 = Ask-User("Unable to connect to SharePoint Site. This is commonly a result of a provisioning delay. Would you like to have the script pause for 5 minutes and try again?")
+        $userOption2 = Read-UserInput("Unable to connect to SharePoint Site. This is commonly a result of a provisioning delay. Would you like to have the script pause for 5 minutes and try again?")
         if ($userOption2 -eq $false) { Write-Host "Script stopping by user request" -ForegroundColor Red -ErrorAction Stop }
         if ($userOption2 -eq $true) { Write-Host "Pausing for 5 minutes to wait for SharePoint Site Provisioning." -ForegroundColor Green; Start-Sleep -Seconds 300 }
     }
@@ -114,6 +114,7 @@ Add-PnPField -Type DateTime -InternalName "LastReset" -DisplayName "Last Reset" 
 Add-PnPField -Type Number -InternalName "SharedWith" -DisplayName "Shared With" -Group "VirtualRounding"
 Add-PnPField -Type DateTime -InternalName "LastShare" -DisplayName "Last Share" -Group "VirtualRounding"
 Add-PnPField -Type Text -InternalName "RoomUPN" -DisplayName "Room UPN" -Group "VirtualRounding"
+Add-PnpField -Type Text -InternalName "PatientName" -DisplayName "Patient Name" -Group "VirtualRounding"
 Add-PnPContentType -Name "VirtualRoundingRoom" -Group "VirtualRounding" | Out-Null
 Start-Sleep -Seconds 5
 $contentType = $null
@@ -136,6 +137,7 @@ Add-PnPFieldToContentType -Field "LastReset" -ContentType $contentType
 Add-PnPFieldToContentType -Field "SharedWith" -ContentType $contentType
 Add-PnPFieldToContentType -Field "LastShare" -ContentType $contentType
 Add-PnPFieldToContentType -Field "RoomUPN" -ContentType $contentType
+Add-PnPFieldToContentType -Field "PatientName" -ContentType $contentType
 
 Write-Host "Creating SharePoint List '$sharepointMasterListName'." -ForegroundColor Green
 $listShortName = $sharepointMasterListName.replace(" ","")
