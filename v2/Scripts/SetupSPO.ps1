@@ -17,7 +17,7 @@ Please see https://aka.ms/virtualroundingcode
 #>
 
 #--------------------------Variables---------------------------#
-$configFilePath = "C:\Users\mafritz\OneDrive - Microsoft\Documents\GitHub\Virtual-Rounding\v2\Scripts\RunningConfig.json"
+$configFilePath = ".\GitHub\Virtual-Rounding\v2\Scripts\RunningConfig.json"
 $configFile = Get-Content -Path $configFilePath | ConvertFrom-Json
 
 $sharepointBaseUrl = $configFile.TenantInfo.SPOBaseUrl

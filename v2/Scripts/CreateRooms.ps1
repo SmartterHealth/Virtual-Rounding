@@ -18,7 +18,7 @@ Please see https://aka.ms/virtualroundingcode
 #>
 
 #-------------------Configurable Variables---------------------#
-$configFilePath = "C:\Users\mafritz\OneDrive - Microsoft\Documents\GitHub\Virtual-Rounding\v2\Scripts\RunningConfig.json"
+$configFilePath = ".\GitHub\Virtual-Rounding\v2\Scripts\RunningConfig.json"
 
 #--------------System Variables (DO NOT MODIFY)----------------#
 $configFile = Get-Content -Path $configFilePath | ConvertFrom-Json
@@ -61,7 +61,7 @@ Function Test-Existence {
 if (!$useMFA) {$creds = Get-Credential -Message 'Please sign in to your Global Admin account:' -UserName $adminUPN}
 
 Test-Existence((Get-Module AzureAD),'The AzureAD Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
-Import-Module AzureADPreview
+Import-Module AzureAD
 if ($useMFA) {Connect-AzureAD -ErrorAction Stop}
 else {Connect-AzureAD -Credential $creds -ErrorAction Stop}
 
