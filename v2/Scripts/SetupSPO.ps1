@@ -114,6 +114,7 @@ Add-PnPField -Type DateTime -InternalName "LastReset" -DisplayName "Last Reset" 
 Add-PnPField -Type Number -InternalName "SharedWith" -DisplayName "Shared With" -Group "VirtualRounding"
 Add-PnPField -Type DateTime -InternalName "LastShare" -DisplayName "Last Share" -Group "VirtualRounding"
 Add-PnPField -Type Text -InternalName "RoomUPN" -DisplayName "Room UPN" -Group "VirtualRounding"
+Add-PnPField -Type Text -InternalName "Patient Name" -DisplayName "Patient Name" -Group "VirtualRounding"
 Add-PnPContentType -Name "VirtualRoundingRoom" -Group "VirtualRounding" | Out-Null
 Start-Sleep -Seconds 5
 $contentType = $null
@@ -136,6 +137,7 @@ Add-PnPFieldToContentType -Field "LastReset" -ContentType $contentType
 Add-PnPFieldToContentType -Field "SharedWith" -ContentType $contentType
 Add-PnPFieldToContentType -Field "LastShare" -ContentType $contentType
 Add-PnPFieldToContentType -Field "RoomUPN" -ContentType $contentType
+Add-PnPFieldToContentType -Field "Patient Name" -ContentType $contentType
 
 Write-Host "Creating SharePoint List '$sharepointMasterListName'." -ForegroundColor Green
 $listShortName = $sharepointMasterListName.replace(" ","")

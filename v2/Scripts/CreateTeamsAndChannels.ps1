@@ -73,8 +73,8 @@ Function Ask-User {
 #-------------------------Script Setup-------------------------#
 if (!$useMFA) { $creds = Get-Credential -Message 'Please sign in to your Global Admin account:' -UserName $adminUPN }
 
-Test-Existence((Get-Module AzureAD-Preview), 'The AzureAD Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
-Import-Module AzureADPreview
+Test-Existence((Get-Module AzureAD), 'The AzureAD Module is not installed. Please see https://aka.ms/virtualroundingcode for more details.') -ErrorAction Stop
+Import-Module AzureAD
 if ($useMFA) { Connect-AzureAD -ErrorAction Stop }
 else { Connect-AzureAD -Credential $creds -ErrorAction Stop }
 
@@ -112,7 +112,7 @@ $TokenResponse = Invoke-RestMethod -Uri "https://login.microsoftonline.com/$Tena
 Write-Host "Connecting to SharePoint Online" -ForegroundColor Green
 if ($useMFA) { Connect-PnPOnline -Url $SharePointMasterSiteURL -UseWebLogin -ErrorAction Stop }
 else { Connect-PnPOnline -Url $SharePointMasterSiteURL -Credential $creds -ErrorAction Stop }
-<##
+
 #-----------------Create Teams and add Members-----------------#
 foreach ($location in $locationsList) {
     #Create Team with policies
@@ -156,7 +156,7 @@ foreach ($location in $locationsList) {
         }
     }
 }
-#>
+
 foreach ($sublocation in $sublocationsList) {
     #--------------Add Views to List----------------#
     $list = "Lists/" + $sharepointMasterListName.replace(' ', '')
