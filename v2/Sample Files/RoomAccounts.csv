@@ -1,0 +1,5 @@
+AccountName,AccountUPN,AccountPassword,AccountLocation,AccountSubLocation
+Room 123,room123@fritzium.com,p@ssword1,Building 1,Floor 1
+Room 404,room404@fritzium.com,p@ssword1,Building 1,Floor 4
+Room 121,room121@fritzium.com,p@ssword1,Building 2,Floor 1
+ED Room 1,edroom1@fritzium.com,p@ssword1,Building 3,ED

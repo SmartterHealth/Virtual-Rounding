@@ -1,0 +1,43 @@
+{
+    "ClientCredential":
+    {
+        "Id": "",
+        "Secret": ":"
+    },
+    "LocationCsvPaths":
+    {
+        "Locations": "C:\\GitHub\\Virtual-Rounding\\v2\\Sample Files\\LocationList.csv.",
+        "SubLocations": "C:\\GitHub\\Virtual-Rounding\\v2\\Sample Files\\SublocationList.csv",
+        "Rooms": "C:\\GitHub\\Virtual-Rounding\\v2\\Sample Files\\RoomAccounts.csv"
+    },
+    "TenantInfo":
+    {
+        "TenantName": "Fritzium.onmicrosoft.com",
+        "SPOBaseUrl": "https://fritzium.sharepoint.com/",
+        "SPOMasterSiteName": "VirtualRounding",
+        "SPOMasterListName": "Virtual Rounding",
+        "RoomsADGroup": "Virtual Rounding Accounts",
+        "MFARequired": false,
+        "GlobalAdminUPN": "admin@Fritzium.onmicrosoft.com"
+    },
+    "ViewJson":
+    {
+        "SPViewJsonFilePath": "C:\\GitHub\\Virtual-Rounding\\v2\\Scripts\\SharePointViewFormatting.json"
+    },
+    "GroupConfiguration": 
+    {
+        "RoundingTeamSuffix":"Virtual Rounding"
+    },
+    "TeamsInfo":
+    {
+        "tabName": "Join a Room",
+        "shareTabName": "Share a Room",
+        "meetingPolicyName": "Virtual Rounding",
+        "messagingPolicyName": "Virtual Rounding",
+        "liveEventPolicyName": "Virtual Rounding",
+        "appPermissionPolicyName": "Virtual Rounding",
+        "appSetupPolicyName": "Virtual Rounding",
+        "callingPolicyName": "Virtual Rounding",
+        "teamsPolicyName": "Virtual Rounding"
+    }
+}
