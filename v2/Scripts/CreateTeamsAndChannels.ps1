@@ -199,7 +199,7 @@ foreach ($sublocation in $sublocationsList) {
     Write-Host "Creating channel '$sublocationName' in the '$teamName' Team." -ForegroundColor Green
     $channelApiUrl = ("https://graph.microsoft.com/beta/teams/" + $teamID + "/channels")
     $channelBody = @"
-            {"displayName": "$sublocationName"}
+            {"displayName": "$sublocationName", "isFavoriteByDefault": true}
 "@
     $newChannel = Invoke-RestMethod -Headers @{Authorization = "Bearer $($Tokenresponse.access_token)" } -Uri $channelApiUrl -Body $channelBody -Method Post -ContentType 'application/json'
     
