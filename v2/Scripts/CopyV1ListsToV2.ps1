@@ -13,7 +13,7 @@ regarding the quality, safety, or suitability of any code or information found h
 
 <#
 INSTRUCTIONS:
-Please see https://aka.ms/virtualroundingcode
+Please see https://github.com/justinkobel/Virtual-Rounding
 #>
 
 #--------------------------Variables---------------------------#

@@ -10,7 +10,7 @@ In order to migrate from v1 to v2, the following steps should be conducted befor
 
 1. Execute the v2 "SetupSPO.ps1" script, leveraging the v2 input RunningConfig.json file.  This will provision the single Virtual Rounding site collection to be populated in the next step. Note that this input file has an extra parameter added in to support the migration, "RoomUpnSuffix", so we can migrate the room accounts from the previous solution to the new solution.  
 2. Create a Locations.csv input file for the locations you want to convert to v2 (we can leave some locations in v1 and some in v2 if so desired)
-3. Execute the CopyV1ListsToV2.ps1 script. This script conducts the following:
+3. Execute the [CopyV1ListsToV2.ps1](/v2/Scripts/CopyV1ListsToV2.ps1) script. This script conducts the following:
     1. Enumerates each of the Locations
     2. Connects to each list using the VirtualRoundingRoom content type
     3. Copies all the items from the v1 list to the v2 list

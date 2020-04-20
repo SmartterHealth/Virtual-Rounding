@@ -18,7 +18,8 @@
         "SPOMasterListName": "Virtual Rounding",
         "RoomsADGroup": "Virtual Rounding Accounts",
         "MFARequired": false,
-        "GlobalAdminUPN": "admin@Fritzium.onmicrosoft.com"
+        "GlobalAdminUPN": "admin@Fritzium.onmicrosoft.com",
+        "RoomUPNSuffix": "@browardh.onmicrosoft.com"
     },
     "ViewJson":
     {
