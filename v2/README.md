@@ -173,50 +173,7 @@ When prompted, sign in with administrator credentials that are able to create Az
 
 ## Team/Channel/Tab Creation (Optional)
 
-If you chose to use Teams and Channels to for providers to join/configure meetings/rooms, use this section. Otherwise, proceed to the next section.
-
-### Script
-
-In this repository is a PowerShell Script (CreateTeamsAndChannels.ps1) that:
-
-1. Creates the Team
-2. Sets Team Settings:
-  i. Visibility: Private
-  ii. Disables member capabilities: Add/Remove Apps, Create/Update/Remove Channels, Create/Update/Remove Connectors, Create/Update/Remove Tabs
-3. Adds members to Team
-4. Creates Custom Views in the master SharePoint list for each sublocation
-6. Creates Channels and pins the SharePoint list view as a Tab
-7. Removes Wiki Tabs
-
-Before running this script, you will need the following:
-
-- Azure AD Security Groups
-  - You will specify security groups to copy membership from to the individual Teams in the below CSV (_MembersGroupName_).
-  - These groups should contain the provider's accounts that you want to be added to the Teams as members. Do not include any of the room accounts you created earlier. They should _not_ be members of the Team. 
-- The App ID and Client Secret from the Azure AD App Registration (earlier step in this guide).
-- A CSV file with the desired Team(s) information
-  - Columns:
-    - LocationName
-      - Location Name. This must match the location names used for AccountLocation in _Patient Room Account Setup_. Ensure all Location Names from that earlier script are represented.
-      - You will be able to add a suffix to this to make a more readable Team name by using a variable in the script
-    - MembersGroupName
-      - Name of an Azure AD Group (or synced AD Group) containing the members to be added to the Team.
-      - These groups should contain the provider's accounts that you want to be added to the Teams as members. Do not include any of the room accounts you created earlier. They should _not_ be members of the Team. 
-  - Sample file available (LocationList.csv)
-- A second CSV file with the desired Channel(s)/List(s)
-  - Columns:
-    - LocationSubName
-      - Sub Location Name. This must match the location names used for AccountSubLocation in _Patient Room Account Setup_. Ensure all Sub Location Names from that earlier script are represented.
-    - LocationName
-      - Location Name. This must match the location names used for AccountLocation in _Patient Room Account Setup_. Ensure all Location Names from that earlier script are represented.
-  - Sample file available (SubLocationList.csv)
-- Azure AD PowerShell Module v2: [https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0](https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0)
-- Microsoft Teams PowerShell: [https://www.powershellgallery.com/packages/MicrosoftTeams/](https://www.powershellgallery.com/packages/MicrosoftTeams/)
-- SharePoint Online PnP PowerShell: [https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets?view=sharepoint-ps](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets?view=sharepoint-ps)
-
-All variables and supporting files will need to be specified in the RunningConfig.json file you can find in this repository. The only varialbe the script needs configured manually is the location of that JSON configuration file.
-
-Once the above is ready, you can run CreateTeamsAndSPO.ps1. As with all open source scripts, please test and review before running in your production environment.
+If you chose to use Teams and Channels to for providers to join/configure meetings/rooms, please see this link.
 
 ## Patient Room Meeting Setup
 
