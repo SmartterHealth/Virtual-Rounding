@@ -73,20 +73,20 @@ Doctors will not be directly invited to any meetings, but instead have access to
 Create Policies in the Microsoft Teams Admin Center matching the below policies. The screenshots below are recommended configuration, but you should configure to your organization's policy/needs.
 
 ### Teams Policy
-![Teams Policy](/Documentation/Images/TeamsPolicy.png)
+![Teams Policy](/v2/Documentation/Images/TeamsPolicy.png)
 ### Meeting Policy
-![Meeting Policy1](/Documentation/Images/MeetingPolicy1.png)
-![Meeting Policy2](/Documentation/Images/MeetingPolicy2.png)
+![Meeting Policy1](/v2/Documentation/Images/MeetingPolicy1.png)
+![Meeting Policy2](/v2/Documentation/Images/MeetingPolicy2.png)
 ### Live Events Policy
-![Live Events Policy](/Documentation/Images/LiveEventsPolicy.png)
+![Live Events Policy](/v2/Documentation/Images/LiveEventsPolicy.png)
 ### Messaging Policy
-![Messaging Policy](/Documentation/Images/MessagingPolicy.png)
+![Messaging Policy](/v2/Documentation/Images/MessagingPolicy.png)
 ### App Permission Policy
-![App Permission Policy](/Documentation/Images/AppPermissionPolicy.png)
+![App Permission Policy](/v2/Documentation/Images/AppPermissionPolicy.png)
 ### App Setup Policy
-![App Setup Policy](/Documentation/Images/AppSetupPolicy.png)
+![App Setup Policy](/v2/Documentation/Images/AppSetupPolicy.png)
 ### Calling Policy
-![Calling Policy](/Documentation/Images/CallingPolicy.png)
+![Calling Policy](/v2/Documentation/Images/CallingPolicy.png)
 
 ## Application Registration
 
@@ -240,91 +240,6 @@ Instructions:
 5. Update all variables, the SharePoint Site base URL in the final step of the flow, and the Group ID.
 
 Once it's been at least 3 hours since you've created the room accounts, you can run the Flow to create all the meeting links. Ideally, wait at least 24 hours. This is to ensure the Teams Policies properly apply to the room accounts before a meeting is created.
-
-## Meeting Bot
-This section covering the meeting bot is _draft_, and we recommend reaching out to your Microsoft Partner or account team for assistance with this. This is a temporary workaround while Microsoft engineering works on a fix for the 30 minute timeout issue (Room sitting in meeting -> Provider Joins for a certain period of time -> Provider leaves meeting -> Meeting ends 30 minutes later if no other providers join (only one user in the meeting)).
-
-A meeting bot can be used to get around the 30 minute timeout issue. The meeting bot will sit in each meeting and serve as a second meeting participant to avoid the 30 minute timeout (which starts as soon as a meeting is down to one participant). The bot is subject to the same 30 minute and 24 hour timeouts that standard accounts have. Therefore, it is crucial that patient device not hang up the meeting, as that would leave the bot as the lone participant in the meeting, starting the 30 minute timer.
-The meeting bot is joined into a meeting using a Graph API call, which can be automated using Power Automate or PowerShell to ensure it rejoins every 24 hours, and potentially sooner depending on your needs. The below will outline the basics of the bot setup process. Ensure you have updated your Azure AD App Registration with the newly added API permissions before starting.
-
-### Bot Configuration
-1. Go to https://dev.botframework.com/bots/new
-2. Fill out all the pertinent information, ensuring to use the app ID from your Azure AD App registration.
-3. Add Microsoft Teams as a channel
-4. Select the calling tab, and select the checkbox to _Enable calling_. For your webhook, enter any _valid_ https URL. We will never be calling this bot, so this field won't be relevant, but it is required to enter something.
-5. In Microsoft Teams, select Apps from the left pane and then select App Studio.
-6. From the top pane, click Manifest editor and then Create a new app from the left pane.
-7. In the App details tab, provide the basic information.
-8. Navigate to the Capabilities section, and select the Bots tab. Then select Set Up in the right pane.
-9. Fill in the desired bot name
-10. Select the Select from one of my existing bots option, and find your bot from above in the dropdown.
-11. Check all options under Calling Bot and Scope and press Save
-12. Use app studio to deploy the bot to your tenant.
-
-### Adding the bot to a Teams meeting
-A Graph API call using your Azure AD App Registration (Client ID, Client Secret, Tenant ID) will allow us to add the bot to an existing scheduled meeting.
-To get the items that the API call will need, get your meeting join link, which should look like this:
-
-`https://teams.microsoft.com/l/meetup-join/19%3ameeting_YWNiYzA2NTctOGIzMy00MzRhLTkyNmUtZGY4NzM2YTFhNmEz%40thread.v2/0?context=%7b%22Tid%22%3a%226be58f7f-c45d-43f9-89e4-b97ec2a06d8e%22%2c%22Oid%22%3a%22ac2ea2ab-9845-4308-a99c-8fdc6548ceac%22%7d`
-
-Decoding that URI, we get this:
-
-`https://teams.microsoft.com/l/meetup-join/19:meeting_YWNiYzA2NTctOGIzMy00MzRhLTkyNmUtZGY4NzM2YTFhNmEz@thread.v2/0?context={"Tid":"6be58f7f-c45d-43f9-89e4-b97ec2a06d8e","Oid":"ac2ea2ab-9845-4308-a99c-8fdc6548ceac"}`
-
-The two items we need from the decoded uri are:
-
-- threadId: `19:meeting_YWNiYzA2NTctOGIzMy00MzRhLTkyNmUtZGY4NzM2YTFhNmEz@thread.v2`
-- organizerId `ac2ea2ab-9845-4308-a99c-8fdc6548ceac`
-
-Using that information, call the graph API using the below to add the bot to the meeting:
-
-Call: `POST https://graph.microsoft.com/beta/communications/calls`
-
-Body:
-```json
-{
-  "@odata.type": "#microsoft.graph.call",
-  "callbackUri": "INSERT URI FROM STEP 4 ABOVE",
-  "tenantId": "INSERT TENANTID HERE",
-  "meetingInfo": {
-    "@odata.type": "#microsoft.graph.organizerMeetingInfo",
-    "organizer": {
-      "@odata.type": "#microsoft.graph.identitySet",
-      "user": {
-        "@odata.type": "#microsoft.graph.identity",
-        "id": "INSERT ORGANIZERID HERE",
-        "tenantId": "INSERT TENANTID HERE"
-      }
-    },
-    "allowConversationWithoutHost": true
-   },
-  "mediaConfig": {
-    "@odata.type": "#microsoft.graph.serviceHostedMediaConfig"
-    },
-   "chatInfo": {
-    "@odata.type": "#microsoft.graph.chatInfo",
-    "threadId": "INSERT THREADID HERE",
-    "messageId": "0"
-  }
-}
-```
-### Flow for automating adding bot to meetings
-We have built a flow for you to use to continuously add the bot to all meetings. This will ensure the bot is not outside of the meeting for more than 25 minutes, ensuring the patient room will not be kicked out either. Again, the only reason the bot will be kicked out is after 24 hours, or if the patient room is not joined 30 minutes. The flow will solve both of those.
-
-Prerequisites:
-
-- A Power Automate Premium license will be required for this piece (P1, P2, Per User or Per App all work).
-- An account with the Power Automate license applied to it, used for creating the Flows (ideally a service account).
-- SetupMeetingsFlow.zip from this repository
-- Get the Group GUID/ObjectID for your Azure AD Group used in _Patient Room Account Setup_ (find in the group properties in the Azure AD Portal)
-
-Instructions:
-
-1. Login to flow.microsoft.com
-2. Click on &quot;My flows&quot;.
-3. Click &quot;Import&quot;.
-4. Upload AddBotToMeetingsFlow.zip
-5. Update all variables.
 
 # Power Apps
 
