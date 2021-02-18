@@ -58,12 +58,20 @@ Doctors will not be directly invited to any meetings, but instead have access to
 
 ## Prerequisites
 
-- Access to a Global Administrator account (for Application Consent)
-- Power Apps per app or per user plan for all users who will access the app (not Patient Room accounts).
-  - Trials are available. Please contact your Microsoft Account representative.
-  - Version 1 of Virtual Rounding is still supported and maintained, and does not require this amount of licensing.
-- Enough Office 365 Licenses for each Patient Room account (any License SKU that includes Microsoft Teams and Exchange Online [plan 1 or 2]; If needed, please contact your Microsoft Account team for the E1 trial available during COVID-19)
-- Optional: EM+S licenses for management of Patient Room devices and identities
+### Admin Access: 
+
+Access to a Global Administrator account (for Application Consent) 
+
+### Licensing:  
+
+Appropriate licensing for this solution may vary depending on your current agreement and configuration of the virtual rounding solution. Please contact your Microsoft account team for accurate licensing requirement information.  
+
+Depending on the use of agreement, the following is one example of a licensing solution for virtual rounding:  
+
+- Microsoft Teams License for each Patient Room account - minimum of F3 required. 
+- Power Automate per flow license for all users who will access the app (not Patient Room accounts). 
+- Version 1 of Virtual Rounding is still supported and maintained and does not require this additional licensing. 
+- Optional: EM+S licenses for management of Patient Room devices and identities 
 
 # Configuration
 
