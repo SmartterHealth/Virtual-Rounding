@@ -1,7 +1,7 @@
 # Virtual Rounding using Microsoft Teams v2
 _Updated 4/15/2020_
 
-Version 2 Scripts, Flows, and PowerApps are all ready for use. This documentation will be improved over the next few days.
+Version 2 Scripts, Flows, and PowerApps are all ready for use.
 
 Version 2 includes the following improved features:
 * Ability to invite family/friends
